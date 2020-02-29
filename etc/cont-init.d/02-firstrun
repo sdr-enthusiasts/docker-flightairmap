@@ -198,6 +198,7 @@ do
     # If no error, then print status and wait until finished
     echo ""
     echo " - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}"
+    echo ""
     if [ "$INSTALLNEXT" = '"finish"' ]
     then
       if [ "$INSTALLPHASE" = '"finish"' ]
