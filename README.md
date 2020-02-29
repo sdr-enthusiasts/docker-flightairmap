@@ -196,7 +196,7 @@ ainer cannot be changed, but you are free to use any port on the host side.
 |----------------|---------|
 | 80 (tcp)       | FlightAirMap application, web server |
 
-## Gettomg Help
+## Getting Help
 
 Having troubles with the container or have questions?  Please [create a new issue](https://github.com/mikenye/docker-flightairmap/issues).
 
