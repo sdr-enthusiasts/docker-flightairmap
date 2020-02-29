@@ -1,0 +1,259 @@
+#!/usr/bin/with-contenv /bin/bash
+
+if [ -f "${PGDATA}/PG_VERSION" ]
+then
+    exit 0
+fi
+
+echo ""
+echo "New installation detected. Performing first-run tasks..."
+echo "This takes a very long time, please be patient!"
+echo ""
+
+# Generate random password
+PGPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+echo ${PGPASSWORD} > /home/${PGUSERNAME}/.pgpassword
+chown ${PGUSERNAME}:${PGUSERNAME} /home/${PGUSERNAME}/.pgpassword
+
+# Initialise database cluster
+echo -n "  - Performing initdb at ${PGDATA}... " | tee -a /home/${PGUSERNAME}/dbinit.log
+s6-setuidgid ${PGUSERNAME} initdb --username=${PGUSERNAME} --pwfile=/home/${PGUSERNAME}/.pgpassword --pgdata ${PGDATA} >> /home/${PGUSERNAME}/dbinit.log 2>&1
+echo "done."
+
+# Start temporary services
+echo "  - Starting temporary services... " | tee -a /home/${PGUSERNAME}/dbinit.log 
+echo ""
+
+# temporarily configure nginx to listen on loopback only
+# this doesn't work for some reason. TODO: fix
+#search='listen *:80;'
+#replace='listen 127.0.0.1:80;'
+#sed -i "/${search}/c\\${replace}" /etc/nginx/conf.d/flightairmap.conf
+
+s6-setuidgid ${PGUSERNAME} pg_ctl start --silent --log=/tmp/pg_firstrun.log -D ${PGDATA} -w >> /home/flightairmap/dbinit.log 2>&1
+/usr/sbin/php-fpm7 --daemonize
+/usr/sbin/nginx -g "daemon on;"
+echo ""
+
+# Set up database and import sql
+echo -n "  - Creating database '${PGDATABASE}'... " | tee -a /home/${PGUSERNAME}/dbinit.log 
+s6-setuidgid ${PGUSERNAME} createdb ${PGDATABASE} >> /home/flightairmap/dbinit.log 2>&1
+echo "done."
+
+# Enable postgis
+echo -n "  - Creating extension 'postgis'... " | tee -a /home/${PGUSERNAME}/dbinit.log 
+s6-setuidgid ${PGUSERNAME} psql -d ${PGDATABASE} -c "CREATE EXTENSION postgis;" >> /home/flightairmap/dbinit.log 2>&1
+echo "done."
+
+# Compress database init log
+gzip -9 /home/${PGUSERNAME}/dbinit.log
+
+########## Running install/index.php ##########
+echo ""
+echo "Running install/index.php"
+echo ""
+
+# Initial visit to install/index.php to set up session cookie
+curl 'http://127.0.0.1/install/index.php' \
+  -v \
+  --cookie-jar /tmp/install_process_cookies \
+  --compressed > /tmp/curl_install_01.log 2>&1
+
+# If no install password given, generate a random one. User can always pull it from settings.php.
+if [ -z "${FAM_INSTALLPASSWORD}" ]; then
+  FAM_INSTALLPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+fi
+
+# Prepare install/index.php POST data
+INSTALLPOSTDATA="installpass="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('$FAM_INSTALLPASSWORD');")
+INSTALLPOSTDATA+="&dbtype=pgsql&dbroot=&dbrootpass=&dbhost=localhost&dbport=5432&dbname="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGDATABASE}');")
+INSTALLPOSTDATA+="&dbuser="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGUSERNAME}');")
+INSTALLPOSTDATA+="&dbuserpass="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGPASSWORD}');")
+INSTALLPOSTDATA+="&sitename="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GLOBALSITENAME}');")
+INSTALLPOSTDATA+="&siteurl=&timezone="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${TZ}');")
+INSTALLPOSTDATA+="&language="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LANGUAGE}');")
+INSTALLPOSTDATA+="&mapprovider="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_MAPPROVIDER}');")
+INSTALLPOSTDATA+="&mapboxid="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_MAPBOXID}');")
+INSTALLPOSTDATA+="&mapboxtoken="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_MAPBOXTOKEN}');")
+INSTALLPOSTDATA+="&googlekey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GOOGLEKEY}');")
+INSTALLPOSTDATA+="&bingkey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_BINGKEY}');")
+INSTALLPOSTDATA+="&mapquestkey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_MAPQUESTKEY}');")
+INSTALLPOSTDATA+="&hereappid="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_HEREAPPID}');")
+INSTALLPOSTDATA+="&hereappcode="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_HEREAPPCODE}');")
+INSTALLPOSTDATA+="&openweathermapkey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_OPENWEATHERMAPKEY}');")
+INSTALLPOSTDATA+="&latitudemax="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LATITUDEMAX}');")
+INSTALLPOSTDATA+="&latitudemin="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LATITUDEMIN}');")
+INSTALLPOSTDATA+="&longitudemax="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LONGITUDEMAX}');")
+INSTALLPOSTDATA+="&longitudemin="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LONGITUDEMIN}');")
+INSTALLPOSTDATA+="&latitudecenter="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LATITUDECENTER}');")
+INSTALLPOSTDATA+="&longitudecenter="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LONGITUDECENTER}');")
+INSTALLPOSTDATA+="&livezoom="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LIVEZOOM}');")
+INSTALLPOSTDATA+="&squawk_country="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_SQUAWK_COUNTRY}');")
+INSTALLPOSTDATA+="&zoilatitude=&zoilongitude=&zoidistance=&source_name%5B%5D=&source_latitude%5B%5D=&source_longitude%5B%5D=&source_altitude%5B%5D=&source_city%5B%5D=&source_country%5B%5D=&source_ref%5B%5D=&globalaircraft=aircraft&globalsbs=sbs&sailawayemail="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_SAILAWAYEMAIL}');")
+INSTALLPOSTDATA+="&sailawaypassword="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_SAILAWAYPASSWORD}');")
+INSTALLPOSTDATA+="&sailawaykey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_SAILAWAYKEY}');")
+INSTALLPOSTDATA+="&host%5B%5D=127.0.0.1&port%5B%5D=30003&format%5B%5D=auto&name%5B%5D=&timezones%5B%5D=UTC&host%5B%5D=&port%5B%5D=&format%5B%5D=auto&name%5B%5D=&timezones%5B%5D=UTC&acarshost=0.0.0.0&acarsport=9999&newsurl%5B%5D=&newslang%5B%5D=en&newstype%5B%5D=global&crash=crash&map3d=map3d&map3dtileset=&map3dshadows=map3dshadows&corsproxy=https%3A%2F%2Fgalvanize-cors-proxy.herokuapp.com%2F&translate=translate&estimation=estimation&unitdistance=km&unitaltitude=m&unitspeed=kmh&schedules=schedules&britishairways="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_BRITISHAIRWAYSAPIKEY}');")
+INSTALLPOSTDATA+="&corsproxy="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_CORSPROXY}');")
+INSTALLPOSTDATA+="&lufthansakey="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LUFTHANSAKEY}');")
+INSTALLPOSTDATA+="&lufthansasecret="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_LUFTHANSASECRET}');")
+INSTALLPOSTDATA+="&flightawareusername="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_FLIGHTAWAREUSERNAME}');")
+INSTALLPOSTDATA+="&flightawarepassword="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_FLIGHTAWAREPASSWORD}');")
+INSTALLPOSTDATA+="&mapmatchingsource="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_MAPMATCHINGSOURCE}');")
+INSTALLPOSTDATA+="&graphhopper="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GRAPHHOPPERAPIKEY}');")
+INSTALLPOSTDATA+="&notam=notam&notamsource="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_NOTAMSOURCE}');")
+INSTALLPOSTDATA+="&metar=metar&metarcycle=metarcycle&metarsource="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_METARSOURCE}');")
+INSTALLPOSTDATA+="&bitly="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_BITLYACCESSTOKENAPI}');")
+INSTALLPOSTDATA+="&waypoints=waypoints&geoid=geoid&geoid_source="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GEOID_SOURCE}');")
+INSTALLPOSTDATA+="&resetyearstats=1&archiveresults=archiveresults&archivemonths=0&archivekeepmonths=0&archivekeeptrackmonths=0&daemon=daemon&cronend=0&colormap=colormap&flightroute=flightroute&flightremainingroute=flightremainingroute&allflights=allflights&refresh=200&maprefresh=30&mapidle=30&minfetch=50&closestmindist=50&aircraftsize=&airportzoom=7&customcss=&submit=Create%2FUpdate+database+%26+write+setup"
+
+# Mimic filling out install/index.php form and submitting
+curl 'http://127.0.0.1/install/index.php' \
+  -v \
+  --cookie /tmp/install_process_cookies \
+  --cookie-jar /tmp/install_process_cookies \
+  --compressed \
+  -H 'Referer: http://127.0.0.1/install/index.php' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data ${INSTALLPOSTDATA} > /tmp/curl_install_02.log 2>&1
+
+# Get the next location from the output of previous command
+NEXTLOCATION=$(cat /tmp/curl_install_02.log  | grep -oP "window\.location\s+=\s+'.*'" | cut -d "'" -f 2)
+
+# Visit the next location
+curl "http://127.0.0.1/install/${NEXTLOCATION}" \
+  -v \
+  --cookie /tmp/install_process_cookies \
+  --cookie-jar /tmp/install_process_cookies \
+  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' \
+  --compressed \
+  -H 'Connection: keep-alive' \
+  -H 'Referer: http://127.0.0.1/install/index.php' >> /tmp/curl_install_03.log 2>&1
+
+# Wait for the install to finish...
+echo ""
+while :
+do
+
+  # Get JSON status of install, output to temp file
+  curl 'http://127.0.0.1/install/install-action.php' \
+    --silent \
+    --cookie /tmp/install_process_cookies \
+    --cookie-jar /tmp/install_process_cookies \
+    -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+    -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" \
+    --compressed \
+    -H 'X-Requested-With: XMLHttpRequest' \
+    -H 'Connection: keep-alive' \
+    --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+
+  # Get info from json
+  INSTALLERROR=$(cat /tmp/install_process_status_json | jq ".error")
+  INSTALLNEXT=$(cat /tmp/install_process_status_json | jq ".next")
+  INSTALLPHASE=$(cat /tmp/install_process_status_json | jq ".install")
+
+  # Check for errors with install
+  if [ "$INSTALLERROR" = '""' ]
+  then
+    
+    # If no error, then print status and wait until finished
+    echo ""
+    echo " - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}"
+    if [ "$INSTALLNEXT" = '"finish"' ]
+    then
+      if [ "$INSTALLPHASE" = '"finish"' ]
+      then
+        echo "Install complete!"
+        break
+      fi
+    fi
+
+  else
+    # If error, output json and exit
+    jq '.'
+    exit  1
+
+  fi
+
+  sleep 1
+done
+
+# Get final status of install
+echo ""
+curl 'http://127.0.0.1/install/index.php?next=finish' \
+  --silent \
+  --cookie /tmp/install_process_cookies \
+  --cookie-jar /tmp/install_process_cookies \
+  -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8' \
+  --compressed \
+  -H 'Connection: keep-alive' \
+  -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" > /tmp/curl_install_04.log
+
+echo ""
+
+# Output status of install
+html2text /tmp/curl_install_04.log | grep "* "
+
+# Initial run of scripts/update_db.php
+echo ""
+echo ""
+echo "Performing first-run of scripts/update_db.php, this will take a very long time..."
+echo ""
+s6-setuidgid flightairmap php /var/www/flightairmap/htdocs/scripts/update_db.php
+
+# Stop temporary services
+echo "  - Stopping temporary services... " | tee -a /home/${PGUSERNAME}/dbinit.log
+echo ""
+pkill nginx
+pkill php-fpm7
+s6-setuidgid ${PGUSERNAME} pg_ctl stop -D ${PGDATA} -m fast -w >> /home/flightairmap/dbinit.log 2>&1
+
+# set nginx config back to normal
+# this doesn't work for some reason. TODO: fix
+#replace='listen *:80;'
+#search='listen 127.0.0.1:80;'
+#sed -i "/${search}/c\\${replace}" /etc/nginx/conf.d/flightairmap.conf
+
+echo ""
+echo "First-run tasks finished OK (finally!)..."
+echo ""
+

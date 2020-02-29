@@ -1,0 +1,144 @@
+#!/usr/bin/with-contenv /bin/bash
+
+echo ""
+echo "Writing environment variables into require/settings.php..."
+
+# If no install password given, generate a random one. User can always pull it from settings.php.
+if [ -z "${FAM_INSTALLPASSWORD}" ]; then
+  FAM_INSTALLPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+fi
+
+search="\$globalInstalled = FALSE;"
+replace="\$globalInstalled = TRUE;"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalInstallPassword = '"
+replace="\$globalInstallPassword = '${FAM_INSTALLPASSWORD}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalName = '"
+replace="\$globalName = '${FAM_GLOBALSITENAME}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLanguage = '"
+replace="\$globalLanguage = '${FAM_LANGUAGE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMapProvider = '"
+replace="\$globalMapProvider = '${FAM_MAPPROVIDER}'; // Can be Mapbox, OpenStreetMap, MapQuest-OSM or MapQuest-Aerial"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMapboxId = '"
+replace="\$globalMapboxId = '${FAM_MAPBOXID}'; // Mapbox id"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMapboxToken = '"
+replace="\$globalMapboxToken = '${FAM_MAPBOXTOKEN}'; // Mapbox token"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalGoogleAPIKey = '"
+replace="\$globalGoogleAPIKey = '${FAM_GOOGLEKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalBingMapKey = '"
+replace="\$globalBingMapKey = '${FAM_BINGKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalHereappID = '"
+replace="\$globalHereappID = '${FAM_HEREAPPID}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalHereappCode = '"
+replace="\$globalHereappCode = '${FAM_HEREAPPCODE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMapQuestKey = '"
+replace="\$globalMapQuestKey = '${FAM_MAPQUESTKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalOpenWeatherMapKey = '"
+replace="\$globalOpenWeatherMapKey = '${FAM_OPENWEATHERMAPKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLatitudeMax = '"
+replace="\$globalLatitudeMax = '${FAM_LATITUDEMAX}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLatitudeMin = '"
+replace="\$globalLatitudeMin = '${FAM_LATITUDEMIN}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLongitudeMax = '"
+replace="\$globalLongitudeMax = '${FAM_LONGITUDEMAX}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLongitudeMin = '"
+replace="\$globalLongitudeMin = '${FAM_LONGITUDEMIN}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalCenterLatitude = '"
+replace="\$globalCenterLatitude = '${FAM_LATITUDECENTER}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalCenterLongitude = '"
+replace="\$globalCenterLongitude = '${FAM_LONGITUDECENTER}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLiveZoom = '"
+replace="\$globalLiveZoom = '${FAM_LIVEZOOM}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalSquawkCountry = '"
+replace="\$globalSquawkCountry = '${FAM_SQUAWK_COUNTRY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalSailaway = array('"
+replace="\$globalSailaway = array('email' => '${FAM_SAILAWAYEMAIL}','password' => '${FAM_SAILAWAYPASSWORD}','key' => '${FAM_SAILAWAYKEY');"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalBritishAirwaysKey = '"
+replace="\$globalBritishAirwaysKey = '${FAM_BRITISHAIRWAYSAPIKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalCORSproxy = '"
+replace="\$globalCORSproxy = '${FAM_CORSPROXY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalLufthansaKey = array('"
+replace="\$globalLufthansaKey = array('key' => '${FAM_LUFTHANSAKEY}','secret' => '${FAM_LUFTHANSASECRET}');"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalFlightAwareUsername = '"
+replace="\$globalFlightAwareUsername = '${FAM_FLIGHTAWAREUSERNAME}'; //FlightAware Username"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalFlightAwarePassword = '"
+replace="\$globalFlightAwarePassword = '${FAM_FLIGHTAWAREPASSWORD}'; //FlightAware Password/API key"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMapMatchingSource = '"
+replace="\$globalMapMatchingSource = '${FAM_MAPMATCHINGSOURCE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalGraphHopperKey = '"
+replace="\$globalGraphHopperKey = '${FAM_GRAPHHOPPERAPIKEY}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalNOTAMSource = '"
+replace="\$globalNOTAMSource = '${FAM_NOTAMSOURCE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalMETARurl = '"
+replace="\$globalMETARurl = '${FAM_METARSOURCE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalBitlyAccessToken = '"
+replace="\$globalBitlyAccessToken = '${FAM_BITLYACCESSTOKENAPI}'; //the access token from the bit.ly API"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalGeoidSource = '"
+replace="\$globalGeoidSource = '${FAM_GEOID_SOURCE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+echo ""
+

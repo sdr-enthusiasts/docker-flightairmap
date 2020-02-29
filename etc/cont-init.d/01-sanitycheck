@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv sh
+
+# Check to make sure the correct command line arguments have been set
+EXITCODE=0
+if [ -z "${FAM_INSTALLPASSWORD}" ]; then
+  echo "WARNING: FAM_INSTALLPASSWORD environment variable not set, using random password"
+  #EXITCODE=1
+fi
+if [ $EXITCODE -ne 0 ]; then
+  exit 1
+fi
+
+ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+

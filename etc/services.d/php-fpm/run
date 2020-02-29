@@ -1,0 +1,5 @@
+#!/usr/bin/with-contenv sh
+
+set -eo pipefail
+/usr/sbin/php-fpm7 --nodaemonize 2>&1 | awk '{print "[php-fpm] " $0}'
+
