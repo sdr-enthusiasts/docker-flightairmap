@@ -1,5 +1,7 @@
 #!/usr/bin/with-contenv /bin/bash
 
+set -x
+
 echo ""
 echo "Writing environment variables into require/settings.php..."
 
