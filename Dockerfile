@@ -93,11 +93,8 @@ RUN apk update && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR ${PGUSERNAME}:${PGUSERNAME} /var/www/flightairmap && \
     echo "========== Deploy s6-overlay ==========" && \
-    wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh
-    # Add clean-up here
-
-# TEMPORARY STUFF THAT WILL BE CLEANED UP ONCE IMAGE IS WORKING!
-RUN apk add net-tools
+    wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
+    rm -rf /var/cache/apk/*
 
 # Copy config files
 COPY etc/ /etc/
