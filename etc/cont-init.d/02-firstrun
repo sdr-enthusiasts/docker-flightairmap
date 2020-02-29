@@ -253,6 +253,9 @@ s6-setuidgid ${PGUSERNAME} pg_ctl stop -D ${PGDATA} -m fast -w >> /home/flightai
 #search='listen 127.0.0.1:80;'
 #sed -i "/${search}/c\\${replace}" /etc/nginx/conf.d/flightairmap.conf
 
+# Cleaning up
+rm -rf /tmp/* /home/${PGUSERNAME}/.pgpassword /home/flightairmap/dbinit.log
+
 echo ""
 echo "First-run tasks finished OK (finally!)..."
 echo ""
