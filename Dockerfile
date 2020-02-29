@@ -51,7 +51,8 @@ RUN apk update && \
         grep \
         jq \
         html2text \
-        socat && \
+        socat \
+        git && \
     useradd -d /home/${PGUSERNAME} -m -r -U ${PGUSERNAME} && \
     echo "========== Deploy php7 ==========" && \
     apk add \
@@ -79,22 +80,70 @@ RUN apk update && \
     usermod -aG nginx ${PGUSERNAME} && \
     echo "========== Deploy PostgreSQL ==========" && \
     apk add \
-        postgresql \
-        postgis && \
+        postgresql && \
     mkdir -p /run/postgresql && \
     chown -vR ${PGUSERNAME}:${PGUSERNAME} /run/postgresql && \
     mkdir -p ${PGDATA} && \
     chown -vR ${PGUSERNAME}:${PGUSERNAME} ${PGDATA} && \
     usermod -aG postgres ${PGUSERNAME} && \
-    echo "========== Deploy FlightAirMap ==========" && \
+    echo "========== Build postgis ==========" && \
     apk add \
-        git && \
+        gcc \
+        make \
+        cmake \
+        musl-dev \
+        autoconf \
+        automake \
+        libtool \
+        postgresql-dev \
+        libxml2-dev \
+        geos-dev \
+        g++ \
+        sqlite-dev \
+        sqlite \
+        json-c-dev && \
+    mkdir -p /src && \
+    cd /src && \
+    echo "Building proj (prereq for postgis)..." && \
+    wget https://download.osgeo.org/proj/proj-6.3.1.tar.gz && \
+    tar xzvf proj-6.3.1.tar.gz && \
+    cd proj-6.3.1 && \
+    ./configure && \
+    make && \
+    make install && \
+    cd /src && \
+    echo "Building postgis..." && \
+    git clone -b stable-3.0 https://git.osgeo.org/gitea/postgis/postgis.git postgis-3.0 && \
+    cd /src/postgis-3.0 && \
+    ./autogen.sh && \
+    ./configure --without-raster && \
+    make && \
+    make install && \
+    echo "========== Deploy FlightAirMap ==========" && \
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR ${PGUSERNAME}:${PGUSERNAME} /var/www/flightairmap && \
     echo "========== Deploy s6-overlay ==========" && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
-    rm -rf /var/cache/apk/*
+    echo "========== Clean up ==========" && \
+    apk del \
+        git \
+        gcc \
+        make \
+        cmake \
+        musl-dev \
+        autoconf \
+        automake \
+        binutils \
+        g++ \
+        libc-dev \
+        libxml2-dev \
+        openssl-dev \
+        postgresql-dev \
+        sqlite-dev \
+        xz-dev \
+        zlib-dev && \
+    rm -rf /var/cache/apk/* /src
 
 # Copy config files
 COPY etc/ /etc/
@@ -102,3 +151,4 @@ COPY etc/ /etc/
 ENTRYPOINT [ "/init" ]
 
 EXPOSE 80
+
