@@ -95,7 +95,7 @@ replace="\$globalSquawkCountry = '${FAM_SQUAWK_COUNTRY}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 search="\$globalSailaway = array('"
-replace="\$globalSailaway = array('email' => '${FAM_SAILAWAYEMAIL}','password' => '${FAM_SAILAWAYPASSWORD}','key' => '${FAM_SAILAWAYKEY');"
+replace="\$globalSailaway = array('email' => '${FAM_SAILAWAYEMAIL}','password' => '${FAM_SAILAWAYPASSWORD}','key' => '${FAM_SAILAWAYKEY}');"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 search="\$globalBritishAirwaysKey = '"
