@@ -90,9 +90,6 @@ RUN set -x && \
     echo "========== Clean up ==========" && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
-# TEMP FOR DEBUGGING
-RUN apt-get update && apt-get install -y procps net-tools less vim
-
 # Copy config files
 COPY etc/ /etc/
 
