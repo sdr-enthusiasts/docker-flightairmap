@@ -55,6 +55,12 @@ RUN set -x && \
         locales \
         procps && \
     useradd -d /home/${WEBUSER} -m -r -U ${WEBUSER} && \
+    echo "========== Setup locales ==========" && \
+    echo "en_US ISO-8859-1" >> /etc/locale.gen && \
+    echo "de_DE ISO-8859-1" >> /etc/locale.gen && \
+    echo "es_ES ISO-8859-1" >> /etc/locale.gen && \
+    echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
+    locale-gen && \
     echo "========== Deploy php7 ==========" && \
     apt-get install -y --no-install-recommends \
         php \
