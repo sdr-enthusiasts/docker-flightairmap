@@ -185,7 +185,6 @@ curl "http://127.0.0.1/install/${NEXTLOCATION}" \
   -H 'Referer: http://127.0.0.1/install/index.php' >> /tmp/curl_install_03.log 2>&1
 
 # Wait for the install to finish...
-echo ""
 while :
 do
 
@@ -219,6 +218,7 @@ do
       if [ "$INSTALLPHASE" = '"finish"' ]
       then
         echo "Install complete!"
+        echo ""
         break
       fi
     fi
@@ -234,7 +234,6 @@ do
 done
 
 # Get final status of install
-echo ""
 curl 'http://127.0.0.1/install/index.php?next=finish' \
   --silent \
   --cookie /tmp/install_process_cookies \
@@ -251,12 +250,12 @@ html2text /tmp/curl_install_04.log | grep "* "
 
 # Initial run of scripts/update_db.php
 echo ""
-echo ""
 echo "Performing first-run of scripts/update_db.php, this will take a very long time..."
 echo ""
 s6-setuidgid $WEBUSER php /var/www/flightairmap/htdocs/scripts/update_db.php
 
 # Stop temporary services
+echo ""
 echo "  - Stopping temporary services... "
 echo ""
 pkill nginx
