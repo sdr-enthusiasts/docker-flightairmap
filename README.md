@@ -41,8 +41,8 @@ docker run -d \
     -e BASESTATIONHOST=readsb \
     -e TZ=Australia/Perth \
     -e FAM_INSTALLPASSWORD="very_secure_password_12345" \
-    -v flightairmap_db:/var/lib/postgresql/flightairmap \
-    -v flightairmap_webapp:/var/www/flightairmap
+    -v flightairmap_db:/var/lib/mysql \
+    -v flightairmap_webapp:/var/www/flightairmap \
     mikenye/flightairmap
 ```
 
@@ -79,7 +79,7 @@ services:
       - BASESTATIONHOST=readsb
       - FAM_INSTALLPASSWORD="very_secure_password_12345"
     volumes:
-      - fam_db:/var/lib/postgresql/flightairmap
+      - fam_db:/var/lib/mysql
       - fam_webapp:/var/www/flightairmap
 ```
 
@@ -180,7 +180,7 @@ format: `<VOL_NAME>:<CONTAINER_DIR>[:PERMISSIONS]`.
 
 | Container path  | Permissions | Description |
 |-----------------|-------------|-------------|
-|`/var/lib/postfresql/flightairmap`| rw | This is where the application database resides. |
+|`/var/lib/mysql`| rw | This is where the application database resides. |
 |`/var/www/flightairmap`| rw | This is where the application itself resides. |
 
 It is suggested to make docker volumes for both of these areas, with the `docker volume create` command, and assign the volumes to the paths above.
