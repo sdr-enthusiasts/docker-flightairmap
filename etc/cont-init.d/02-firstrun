@@ -1,5 +1,9 @@
 #!/usr/bin/with-contenv /bin/bash
 
+NOCOLOR='\033[0m'
+LIGHTGREEN='\033[1;32m'
+LIGHTCYAN='\033[1;36m'
+
 # Check if the flightairmap database exists
 # Start mysqld without permissions
 /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
@@ -25,17 +29,17 @@ fi
 mysqladmin shutdown
 
 # if it doesn't, then do the first run tasks
-echo ""
+echo -e "${LIGHTCYAN}"
 echo "New installation detected. Performing first-run tasks..."
 echo "This takes a very long time, please be patient!"
-echo ""
+echo -e "${NOCOLOR}"
 
 # Generate random passwords
 MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
 # Start temporary services
-echo "  - Starting temporary services... "
+echo -e "${LIGHTCYAN}  - Starting temporary services... ${NOCOLOR}"
 echo ""
 
 /usr/sbin/mysqld --console --log-error='' --silent-startup &
@@ -61,7 +65,7 @@ mysql -u root -D mysql --password=$MYSQLROOTPASSWORD -e "FLUSH PRIVILEGES ;"
 
 ########## Running install/index.php ##########
 echo ""
-echo "Running install/index.php"
+echo -e "${LIGHTCYAN}Running install/index.php${NOCOLOR}"
 echo ""
 
 # Initial visit to install/index.php to set up session cookie
@@ -211,13 +215,13 @@ do
     
     # If no error, then print status and wait until finished
     echo ""
-    echo " - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}"
+    echo -e "${LIGHTCYAN} - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}${NOCOLOR}"
     echo ""
     if [ "$INSTALLNEXT" = '"finish"' ]
     then
       if [ "$INSTALLPHASE" = '"finish"' ]
       then
-        echo "Install complete!"
+        echo -e "${LIGHTCYAN}Running install/index.php completed successfully!${NOCOLOR}"
         echo ""
         break
       fi
@@ -250,19 +254,19 @@ html2text /tmp/curl_install_04.log | grep "* "
 
 # Initial run of scripts/update_db.php
 echo ""
-echo "Performing first-run of scripts/update_db.php, this will take a very long time..."
+echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
 echo ""
 s6-setuidgid $WEBUSER php /var/www/flightairmap/htdocs/scripts/update_db.php
 
 # Stop temporary services
 echo ""
-echo "  - Stopping temporary services... "
+echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
 echo ""
 pkill nginx
 pkill php-fpm
 mysqladmin -u root --password=$MYSQLROOTPASSWORD shutdown
 
 echo ""
-echo "First-run tasks finished OK (finally!)..."
+echo -e "${LIGHTGREEN}First-run tasks finished OK (finally!)...${NOCOLOR}"
 echo ""
 

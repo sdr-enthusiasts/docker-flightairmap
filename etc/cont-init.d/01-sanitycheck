@@ -1,9 +1,15 @@
 #!/usr/bin/with-contenv sh
 
+NOCOLOR='\033[0m'
+LIGHTRED='\033[1;31m'
+LIGHTGREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+LIGHTCYAN='\033[1;36m'
+
 # Check to make sure the correct command line arguments have been set
 EXITCODE=0
 if [ -z "${FAM_INSTALLPASSWORD}" ]; then
-  echo "WARNING: FAM_INSTALLPASSWORD environment variable not set, using random password"
+  echo -e "${YELLOW}WARNING: FAM_INSTALLPASSWORD environment variable not set, using random password${NOCOLOR}"
   #EXITCODE=1
 fi
 if [ $EXITCODE -ne 0 ]; then

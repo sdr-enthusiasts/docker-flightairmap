@@ -1,9 +1,11 @@
 #!/usr/bin/with-contenv /bin/bash
 
-set -x
+NOCOLOR='\033[0m'
+LIGHTGREEN='\033[1;32m'
+LIGHTCYAN='\033[1;36m'
 
 echo ""
-echo "Writing environment variables into require/settings.php..."
+echo -e "${LIGHTCYAN}Writing environment variables into require/settings.php...${NOCOLOR}"
 
 # If no install password given, generate a random one. User can always pull it from settings.php.
 if [ -z "${FAM_INSTALLPASSWORD}" ]; then
