@@ -52,7 +52,7 @@ RUN set -x && \
         html2text \
         socat \
         git \
-        locales 
+        locales \
         procps && \
     useradd -d /home/${WEBUSER} -m -r -U ${WEBUSER} && \
     echo "========== Deploy php7 ==========" && \
