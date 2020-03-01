@@ -40,7 +40,6 @@ MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
 # Start temporary services
 echo -e "${LIGHTCYAN}Starting temporary services... ${NOCOLOR}"
-echo ""
 
 /usr/sbin/mysqld --console --log-error='' --silent-startup &
 # Wait for mysqld to init
