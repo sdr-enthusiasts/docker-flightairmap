@@ -1,4 +1,4 @@
 #!/usr/bin/with-contenv sh
 set -eo pipefail
-s6-setuidgid flightairmap php /var/www/flightairmap/htdocs/scripts/daemon-spotter.php 2>&1 | awk '{print "[daemon-spotter] " $0}'
+s6-setuidgid $WEBUSER php /var/www/flightairmap/htdocs/scripts/daemon-spotter.php 2>&1 | awk '{print "[daemon-spotter] " $0}'
 

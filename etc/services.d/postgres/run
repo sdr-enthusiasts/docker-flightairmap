@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv sh
-set -eo pipefail
-s6-setuidgid ${PGUSERNAME} postgres -D ${PGDATA} 2>&1 | awk '{print "[postgres] " $0}'

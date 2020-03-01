@@ -1,52 +1,37 @@
 #!/usr/bin/with-contenv /bin/bash
 
-if [ -f "${PGDATA}/PG_VERSION" ]
+# Check if the flightairmap database exists
+/usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
+mysqlshow $MYSQLDATABASE
+if [ $? -eq 0 ]
 then
+    # if it does, do nothing
+    mysqladmin shutdown
     exit 0
 fi
+mysqladmin shutdown
 
+# if it doesn't, then do the first run tasks
 echo ""
 echo "New installation detected. Performing first-run tasks..."
 echo "This takes a very long time, please be patient!"
 echo ""
 
-# Generate random password
-PGPASSWORD="$(pwgen -cns 60 999 | tail -1)"
-echo ${PGPASSWORD} > /home/${PGUSERNAME}/.pgpassword
-chown ${PGUSERNAME}:${PGUSERNAME} /home/${PGUSERNAME}/.pgpassword
-
-# Initialise database cluster
-echo -n "  - Performing initdb at ${PGDATA}... " | tee -a /home/${PGUSERNAME}/dbinit.log
-s6-setuidgid ${PGUSERNAME} initdb --username=${PGUSERNAME} --pwfile=/home/${PGUSERNAME}/.pgpassword --pgdata ${PGDATA} >> /home/${PGUSERNAME}/dbinit.log 2>&1
-echo "done."
+# Generate random passwords
+MYSQLROOTPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+MYSQLPASSWORD="$(pwgen -cns 60 999 | tail -1)"
 
 # Start temporary services
-echo "  - Starting temporary services... " | tee -a /home/${PGUSERNAME}/dbinit.log 
+echo "  - Starting temporary services... "
 echo ""
 
-# temporarily configure nginx to listen on loopback only
-# this doesn't work for some reason. TODO: fix
-#search='listen *:80;'
-#replace='listen 127.0.0.1:80;'
-#sed -i "/${search}/c\\${replace}" /etc/nginx/conf.d/flightairmap.conf
-
-s6-setuidgid ${PGUSERNAME} pg_ctl start --silent --log=/tmp/pg_firstrun.log -D ${PGDATA} -w >> /home/flightairmap/dbinit.log 2>&1
-/usr/sbin/php-fpm7 --daemonize
+/usr/sbin/mysqld --console --log-error='' --silent-startup &
+/usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on;"
 echo ""
 
-# Set up database and import sql
-echo -n "  - Creating database '${PGDATABASE}'... " | tee -a /home/${PGUSERNAME}/dbinit.log 
-s6-setuidgid ${PGUSERNAME} createdb ${PGDATABASE} >> /home/flightairmap/dbinit.log 2>&1
-echo "done."
-
-# Enable postgis
-echo -n "  - Creating extension 'postgis'... " | tee -a /home/${PGUSERNAME}/dbinit.log 
-s6-setuidgid ${PGUSERNAME} psql -d ${PGDATABASE} -c "CREATE EXTENSION postgis;" >> /home/flightairmap/dbinit.log 2>&1
-echo "done."
-
-# Compress database init log
-gzip -9 /home/${PGUSERNAME}/dbinit.log
+# Set mysql root password
+mysqladmin -u root password "$DATABASE_ROOT_PASS"
 
 ########## Running install/index.php ##########
 echo ""
@@ -67,12 +52,16 @@ fi
 # Prepare install/index.php POST data
 INSTALLPOSTDATA="installpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$FAM_INSTALLPASSWORD');")
-INSTALLPOSTDATA+="&dbtype=pgsql&dbroot=&dbrootpass=&dbhost=localhost&dbport=5432&dbname="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGDATABASE}');")
+INSTALLPOSTDATA+="&dbtype=mysql&dbroot="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
+INSTALLPOSTDATA+="&dbrootpass="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
+INSTALLPOSTDATA+="&dbhost=localhost&dbport=3306&dbname="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLDATABASE}');")
 INSTALLPOSTDATA+="&dbuser="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGUSERNAME}');")
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLUSERNAME}');")
 INSTALLPOSTDATA+="&dbuserpass="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('${PGPASSWORD}');")
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLPASSWORD}');")
 INSTALLPOSTDATA+="&sitename="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GLOBALSITENAME}');")
 INSTALLPOSTDATA+="&siteurl=&timezone="
@@ -239,23 +228,14 @@ echo ""
 echo ""
 echo "Performing first-run of scripts/update_db.php, this will take a very long time..."
 echo ""
-s6-setuidgid flightairmap php /var/www/flightairmap/htdocs/scripts/update_db.php
+s6-setuidgid $WEBUSER php /var/www/flightairmap/htdocs/scripts/update_db.php
 
 # Stop temporary services
-echo "  - Stopping temporary services... " | tee -a /home/${PGUSERNAME}/dbinit.log
+echo "  - Stopping temporary services... "
 echo ""
 pkill nginx
-pkill php-fpm7
-s6-setuidgid ${PGUSERNAME} pg_ctl stop -D ${PGDATA} -m fast -w >> /home/flightairmap/dbinit.log 2>&1
-
-# set nginx config back to normal
-# this doesn't work for some reason. TODO: fix
-#replace='listen *:80;'
-#search='listen 127.0.0.1:80;'
-#sed -i "/${search}/c\\${replace}" /etc/nginx/conf.d/flightairmap.conf
-
-# Cleaning up
-rm -rf /tmp/* /home/${PGUSERNAME}/.pgpassword /home/flightairmap/dbinit.log
+pkill php-fpm
+mysqladmin shutdown
 
 echo ""
 echo "First-run tasks finished OK (finally!)..."

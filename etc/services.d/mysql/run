@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv sh
+set -eo pipefail
+/usr/sbin/mysqld --console --log-error='' 2>&1 | awk '{print "[mariadb] " $0}'
