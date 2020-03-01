@@ -101,7 +101,8 @@ RUN apk update && \
         g++ \
         sqlite-dev \
         sqlite \
-        json-c-dev && \
+        json-c-dev \
+        byacc && \
     mkdir -p /src && \
     cd /src && \
     echo "Building proj (prereq for postgis)..." && \
