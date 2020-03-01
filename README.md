@@ -50,7 +50,7 @@ On the first run of the container, the database will be populated and data will 
 * Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
 * Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
-With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
+With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
 ## Quick Start with `docker-compose`
 
