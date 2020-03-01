@@ -84,11 +84,16 @@ RUN set -x && \
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
     cd /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
+    rm -rf /var/www/flightairmap/htdocs/.git && \
     chown -vR ${WEBUSER}:${WEBUSER} /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION && \
     echo "========== Deploy s6-overlay ==========" && \
+    apt-get install --no-install-recommends -y gnupg && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
+    apt-get remove -y gnupg && \
     echo "========== Clean up ==========" && \
+    apt-get remove -y git && \
+    apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
 # Copy config files
