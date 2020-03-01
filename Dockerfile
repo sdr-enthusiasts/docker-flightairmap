@@ -73,7 +73,7 @@ RUN set -x && \
     apt-get install -y --no-install-recommends \
         nginx-light && \
     rm -vf /etc/nginx/conf.d/default.conf && \
-    rm -vrf /var/www/localhost && \
+    rm -vrf /var/www/* && \
     usermod -aG www-data ${WEBUSER} && \
     echo "========== Deploy MariaDB ==========" && \
     apt-get install -y --no-install-recommends \
