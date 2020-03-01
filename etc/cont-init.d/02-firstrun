@@ -39,7 +39,7 @@ MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
 # Start temporary services
-echo -e "${LIGHTCYAN}  - Starting temporary services... ${NOCOLOR}"
+echo -e "${LIGHTCYAN}Starting temporary services... ${NOCOLOR}"
 echo ""
 
 /usr/sbin/mysqld --console --log-error='' --silent-startup &
@@ -56,7 +56,6 @@ done
 
 /usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
-echo ""
 
 # Set mysql root password
 mysqladmin -u root password $MYSQLROOTPASSWORD

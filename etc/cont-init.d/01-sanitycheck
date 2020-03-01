@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv sh
+#!/usr/bin/with-contenv /bin/bash
 
 NOCOLOR='\033[0m'
 LIGHTRED='\033[1;31m'
