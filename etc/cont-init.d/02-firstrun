@@ -6,7 +6,7 @@
 # Wait for mysqld to init
 while :
 do
-  mysqladmin status
+  mysqladmin status > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
     break
@@ -42,7 +42,7 @@ echo ""
 # Wait for mysqld to init
 while :
 do
-  mysqladmin status
+  mysqladmin status > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
     break
