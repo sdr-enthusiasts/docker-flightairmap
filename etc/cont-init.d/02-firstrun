@@ -1,7 +1,20 @@
 #!/usr/bin/with-contenv /bin/bash
 
 # Check if the flightairmap database exists
+# Start mysqld without permissions
 /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
+# Wait for mysqld to init
+while :
+do
+  mysqladmin status
+  if [ $? -eq 0 ]
+  then
+    break
+  fi
+  sleep 0.5
+done
+
+# See if flightairmap database exists
 mysqlshow $MYSQLDATABASE
 if [ $? -eq 0 ]
 then
@@ -18,20 +31,33 @@ echo "This takes a very long time, please be patient!"
 echo ""
 
 # Generate random passwords
-MYSQLROOTPASSWORD="$(pwgen -cns 60 999 | tail -1)"
-MYSQLPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
+MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
 # Start temporary services
 echo "  - Starting temporary services... "
 echo ""
 
 /usr/sbin/mysqld --console --log-error='' --silent-startup &
+# Wait for mysqld to init
+while :
+do
+  mysqladmin status
+  if [ $? -eq 0 ]
+  then
+    break
+  fi
+  sleep 0.5
+done
+
 /usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on;"
 echo ""
 
 # Set mysql root password
-mysqladmin -u root password "$DATABASE_ROOT_PASS"
+mysqladmin -u root password $MYSQLROOTPASSWORD
+mysql -u root -D mysql --password=$MYSQLROOTPASSWORD -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
+mysql -u root -D mysql --password=$MYSQLROOTPASSWORD -e "FLUSH PRIVILEGES ;"
 
 ########## Running install/index.php ##########
 echo ""
@@ -46,13 +72,13 @@ curl 'http://127.0.0.1/install/index.php' \
 
 # If no install password given, generate a random one. User can always pull it from settings.php.
 if [ -z "${FAM_INSTALLPASSWORD}" ]; then
-  FAM_INSTALLPASSWORD="$(pwgen -cns 60 999 | tail -1)"
+  FAM_INSTALLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 fi
 
 # Prepare install/index.php POST data
 INSTALLPOSTDATA="installpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$FAM_INSTALLPASSWORD');")
-INSTALLPOSTDATA+="&dbtype=mysql&dbroot="
+INSTALLPOSTDATA+="&dbtype=mysql&createdb=createdb&dbroot="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
 INSTALLPOSTDATA+="&dbrootpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
@@ -235,7 +261,7 @@ echo "  - Stopping temporary services... "
 echo ""
 pkill nginx
 pkill php-fpm
-mysqladmin shutdown
+mysqladmin -u root --password=$MYSQLROOTPASSWORD shutdown
 
 echo ""
 echo "First-run tasks finished OK (finally!)..."
