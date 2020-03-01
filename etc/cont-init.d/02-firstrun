@@ -51,7 +51,7 @@ do
 done
 
 /usr/sbin/php-fpm7.3 --daemonize
-/usr/sbin/nginx -g "daemon on;"
+/usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
 echo ""
 
 # Set mysql root password
