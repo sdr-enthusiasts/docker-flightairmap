@@ -1,6 +1,6 @@
 # Docker container for FlightAirMap
 
-Docker container for FlightAirMap (http://flightairmap.com).
+Docker container for [FlightAirMap](http://flightairmap.com).
 
 Builds and runs on x86_64, arm32v7 and arm64v8 (and possibly other architectures).
 
@@ -47,6 +47,7 @@ docker run -d \
 ```
 
 On the first run of the container, the database will be populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
+
 * Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
 * Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
@@ -84,6 +85,7 @@ services:
 ```
 
 On the first run of the container, the database will be populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
+
 * Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
 * Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
@@ -95,7 +97,7 @@ To customize some properties of the container, the following environment
 variables can be passed via the `-e` parameter (one for each variable).  Value
 of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
-`TZ`: Your local timezone in "TZ database name" format (https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional.
+`TZ`: Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional.
 
 `FAM_INSTALLPASSWORD`: Sets the `$globalInstallPassword` variable in `require/settings.php`. The password to access the install area. If not given, a randomly password will be generated and used. To obtain the generated password, you can issue the command `docker exec flightairmap cat /var/www/flightairmap/htdocs/require/settings.php | grep globalInstallPassword`. Optional.
 
@@ -103,7 +105,7 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
 `BASESTATIONPORT`: If your `readsb` or `dump1090` is running on a non-standard TCP port, you can change it here. Default `30003`. Optional.
 
-`FAM_GLOBALSITENAME`: Sets the `$globalName` variable in `require/settings.php`.`The name of your site. Default `My FlightAirMap Site`. Optional.
+`FAM_GLOBALSITENAME`: Sets the `$globalName` variable in `require/settings.php`.The name of your site. Default `My FlightAirMap Site`. Optional.
 
 `FAM_LANGUAGE`: Sets the `$globalLanguage` variable in `require/settings.php`. Interface language. Can be set to `EN`, `DE` or `FR`. Default `EN`. Optional.
 
@@ -171,7 +173,6 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
 `FAM_GEOID_SOURCE` Sets the `$globalGeoidSource` variable in `require/settings.php`. Default `egm96-15`. Optional.
 
-
 ### Data Volumes
 
 The following table describes data volumes used by the container.  The mappings
@@ -199,4 +200,3 @@ ainer cannot be changed, but you are free to use any port on the host side.
 ## Getting Help
 
 Having troubles with the container or have questions?  Please [create a new issue](https://github.com/mikenye/docker-flightairmap/issues).
-

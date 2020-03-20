@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv /bin/bash
+#shellcheck shell=bash
 
 NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
@@ -19,7 +20,7 @@ do
 done
 
 # See if flightairmap database exists
-mysqlshow $MYSQLDATABASE
+mysqlshow "${MYSQLDATABASE}"
 if [ $? -eq 0 ]
 then
     # if it does, do nothing
@@ -57,9 +58,9 @@ done
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
 
 # Set mysql root password
-mysqladmin -u root password $MYSQLROOTPASSWORD
-mysql -u root -D mysql --password=$MYSQLROOTPASSWORD -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
-mysql -u root -D mysql --password=$MYSQLROOTPASSWORD -e "FLUSH PRIVILEGES ;"
+mysqladmin -u root password "${MYSQLROOTPASSWORD}"
+mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
+mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
 
 ########## Running install/index.php ##########
 echo ""
@@ -171,7 +172,7 @@ curl 'http://127.0.0.1/install/index.php' \
   -H 'Referer: http://127.0.0.1/install/index.php' \
   -H 'Connection: keep-alive' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
-  --data ${INSTALLPOSTDATA} > /tmp/curl_install_02.log 2>&1
+  --data "${INSTALLPOSTDATA}" > /tmp/curl_install_02.log 2>&1
 
 # Get the next location from the output of previous command
 NEXTLOCATION=$(cat /tmp/curl_install_02.log  | grep -oP "window\.location\s+=\s+'.*'" | cut -d "'" -f 2)
@@ -189,7 +190,6 @@ curl "http://127.0.0.1/install/${NEXTLOCATION}" \
 # Wait for the install to finish...
 while :
 do
-
   # Get JSON status of install, output to temp file
   curl 'http://127.0.0.1/install/install-action.php' \
     --silent \
@@ -208,9 +208,9 @@ do
   INSTALLPHASE=$(cat /tmp/install_process_status_json | jq ".install")
 
   # Check for errors with install
-  if [ "$INSTALLERROR" = '""' ]
+  if [ "${INSTALLERROR}" = '""' ]
   then
-    
+
     # If no error, then print status and wait until finished
     echo ""
     echo -e "${LIGHTCYAN} - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}${NOCOLOR}"
@@ -248,13 +248,13 @@ curl 'http://127.0.0.1/install/index.php?next=finish' \
 echo ""
 
 # Output status of install
-html2text /tmp/curl_install_04.log | grep "* "
+html2text /tmp/curl_install_04.log | grep "\* "
 
 # Initial run of scripts/update_db.php
 echo ""
 echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
 echo ""
-s6-setuidgid $WEBUSER php /var/www/flightairmap/htdocs/scripts/update_db.php
+s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php
 
 # Stop temporary services
 echo ""
@@ -262,9 +262,8 @@ echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
 echo ""
 pkill nginx
 pkill php-fpm
-mysqladmin -u root --password=$MYSQLROOTPASSWORD shutdown
+mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
 
 echo ""
 echo -e "${LIGHTGREEN}First-run tasks finished OK (finally!)...${NOCOLOR}"
 echo ""
-

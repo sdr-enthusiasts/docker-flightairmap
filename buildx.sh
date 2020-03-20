@@ -1,17 +1,17 @@
 #!/bin/bash
 
-set -x
-
-IMAGE=mikenye/flightairmap
+REPO=mikenye
+IMAGE=flightairmap
+PLATFORMS="linux/amd64,linux/arm/v7,linux/arm64"
 
 docker context use x86_64
 export DOCKER_CLI_EXPERIMENTAL="enabled"
 docker buildx use homecluster
 
 # Build the image using buildx
-docker buildx build -t ${IMAGE}:latest --compress --push --platform linux/amd64,linux/arm/v7,linux/arm64 .
-docker pull ${IMAGE}:latest
+docker buildx build -t "${REPO}/${IMAGE}:latest" --compress --push --platform "${PLATFORMS}" .
+docker pull "${REPO}/${IMAGE}:latest"
 
-VERSION=$(docker run --rm --entrypoint cat mikenye/flightairmap:latest /VERSION | cut -c1-14)
+VERSION=$(docker run --rm --entrypoint cat "${REPO}/${IMAGE}:latest" /VERSION | cut -c1-14)
 
-docker buildx build -t ${IMAGE}:${VERSION} --compress --push --platform linux/amd64,linux/arm/v7,linux/arm64 .
+docker buildx build -t "${REPO}/${IMAGE}:${VERSION}" --compress --push --platform "${PLATFORMS}" .

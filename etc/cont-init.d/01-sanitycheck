@@ -1,10 +1,8 @@
 #!/usr/bin/with-contenv /bin/bash
+#shellcheck shell=bash
 
 NOCOLOR='\033[0m'
-LIGHTRED='\033[1;31m'
-LIGHTGREEN='\033[1;32m'
 YELLOW='\033[1;33m'
-LIGHTCYAN='\033[1;36m'
 
 # Check to make sure the correct command line arguments have been set
 EXITCODE=0
@@ -17,4 +15,3 @@ if [ $EXITCODE -ne 0 ]; then
 fi
 
 ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-

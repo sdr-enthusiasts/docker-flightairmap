@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv /bin/bash
+#shellcheck shell=bash
 
 NOCOLOR='\033[0m'
-LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 
 echo ""
@@ -145,4 +145,3 @@ replace="\$globalGeoidSource = '${FAM_GEOID_SOURCE}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 echo ""
-
