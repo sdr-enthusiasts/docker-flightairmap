@@ -1,4 +1,4 @@
-# Docker container for FlightAirMap
+# mikenye/flightairmap
 
 Docker container for [FlightAirMap](http://flightairmap.com).
 
@@ -32,7 +32,7 @@ This container is designed to work in conjunction with a Mode-S / BEAST provider
 
 Launch the FlightAwareMap docker container with the following commands:
 
-```
+```shell
 docker volume create flightairmap_db
 docker volume create flightairmap_webapp
 docker run -d \
@@ -59,7 +59,7 @@ With regards to settings - where one exists, you should use an environment varia
 
 An example `docker-compose.yml` file is as follows:
 
-```
+```shell
 version: '2.0'
 
 volumes:
