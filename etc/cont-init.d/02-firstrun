@@ -4,6 +4,7 @@
 NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
+LIGHTRED='\033[1;31m'
 
 if [ ! -z "${MYSQLHOSTNAME}" ]; then
   # if using external database
@@ -16,7 +17,7 @@ if [ ! -z "${MYSQLHOSTNAME}" ]; then
       --password="${MYSQLPASSWORD}" \
       status > /dev/null 2>&1
     if [ $? -eq 0 ]; then
-      echo " ready!"
+      echo ""
       break
     fi
     echo -n "."
@@ -44,7 +45,7 @@ fi
 # See if flightairmap database exists
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # if using local database
-  mysqlshow "${MYSQLDATABASE}"
+  mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
       # if it does, do nothing
@@ -57,7 +58,7 @@ else
     --host="${MYSQLHOSTNAME}" \
     --user="${MYSQLUSERNAME}" \
     --password="${MYSQLPASSWORD}" \
-    "${MYSQLDATABASE}"
+    "${MYSQLDATABASE}" > /dev/null 2>&1
   if [ $? -eq 0 ]
   then
       # if it does, do nothing
@@ -281,8 +282,10 @@ do
   else
     # If error, output json and exit
     jq '.'
-    exit  1
-
+    echo ""
+    echo -e "${LIGHTRED}${INSTALLERROR}${NOCOLOR}"
+    echo ""
+    exit 1
   fi
 
   sleep 1
