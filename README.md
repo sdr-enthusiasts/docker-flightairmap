@@ -131,7 +131,7 @@ services:
     container_name: flightairmap
     restart: always
     ports:
-      - 6666:80
+      - 8080:80
     environment:
       - TZ=Australia/Perth
       - BASESTATIONHOST=readsb
