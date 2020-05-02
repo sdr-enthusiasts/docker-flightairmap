@@ -5,29 +5,48 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 
-# Check if the flightairmap database exists
-# Start mysqld without permissions
-/usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
-# Wait for mysqld to init
-while :
-do
-  mysqladmin status > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
-    break
-  fi
-  sleep 0.5
-done
+# Only run the following commands if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # Check if the flightairmap database exists
+  # Start mysqld without permissions
+  /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
+  # Wait for mysqld to init
+  while :
+  do
+    mysqladmin status > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+      break
+    fi
+    sleep 0.5
+  done
+fi
 
 # See if flightairmap database exists
-mysqlshow "${MYSQLDATABASE}"
-if [ $? -eq 0 ]
-then
-    # if it does, do nothing
-    mysqladmin shutdown
-    exit 0
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  mysqlshow "${MYSQLDATABASE}"
+  if [ $? -eq 0 ]
+  then
+      # if it does, do nothing
+      mysqladmin shutdown
+      exit 0
+  fi
+  mysqladmin shutdown
+else
+  # if using external database
+  mysqlshow \
+    --host="${MYSQLHOSTNAME}" \
+    --user="${MYSQLUSERNAME}" \
+    --password="${MYSQLPASSWORD}" \
+    "${MYSQLDATABASE}"
+  if [ $? -eq 0 ]
+  then
+      # if it does, do nothing
+      mysqladmin shutdown
+      exit 0
+  fi
 fi
-mysqladmin shutdown
 
 # if it doesn't, then do the first run tasks
 echo -e "${LIGHTCYAN}"
@@ -35,32 +54,38 @@ echo "New installation detected. Performing first-run tasks..."
 echo "This takes a very long time, please be patient!"
 echo -e "${NOCOLOR}"
 
-# Generate random passwords
-MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
-MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
-
 # Start temporary services
 echo -e "${LIGHTCYAN}Starting temporary services... ${NOCOLOR}"
 
-/usr/sbin/mysqld --console --log-error='' --silent-startup &
-# Wait for mysqld to init
-while :
-do
-  mysqladmin status > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
-    break
-  fi
-  sleep 0.5
-done
+# if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # Generate random passwords
+  MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
+  MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
+
+  /usr/sbin/mysqld --console --log-error='' --silent-startup &
+  # Wait for mysqld to init
+  while :
+  do
+    mysqladmin status > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+      break
+    fi
+    sleep 0.5
+  done
+fi
 
 /usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
 
-# Set mysql root password
-mysqladmin -u root password "${MYSQLROOTPASSWORD}"
-mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
-mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
+# if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # Set mysql root password
+  mysqladmin -u root password "${MYSQLROOTPASSWORD}"
+  mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
+  mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
+fi
 
 ########## Running install/index.php ##########
 echo ""
@@ -262,7 +287,10 @@ echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
 echo ""
 pkill nginx
 pkill php-fpm
-mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
+# if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
+fi
 
 echo ""
 echo -e "${LIGHTGREEN}First-run tasks finished OK (finally!)...${NOCOLOR}"
