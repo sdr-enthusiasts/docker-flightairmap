@@ -57,8 +57,8 @@ echo -e "${NOCOLOR}"
 # Start temporary services
 echo -e "${LIGHTCYAN}Starting temporary services... ${NOCOLOR}"
 
-# if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
   # Generate random passwords
   MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
   MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
@@ -72,7 +72,24 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
     then
       break
     fi
-    sleep 0.5
+    echo "Waiting for database..."
+    sleep 1
+  done
+
+else
+  # if using external database
+  while :
+  do
+    mysqladmin \
+      --host="${MYSQLHOSTNAME}" \
+      --user="${MYSQLUSERNAME}" \
+      --password="${MYSQLPASSWORD}" \
+      status
+    if [ $? -eq 0 ]; then
+      break
+    fi
+    echo "Waiting for database..."
+    sleep 1
   done
 fi
 
