@@ -9,17 +9,19 @@ LIGHTCYAN='\033[1;36m'
 
 if [ ! -z "${MYSQLHOSTNAME}" ]; then
   # if using external database
+  echo -n "Waiting for database"
   while :
   do
     mysqladmin \
       --host="${MYSQLHOSTNAME}" \
       --user="${MYSQLUSERNAME}" \
       --password="${MYSQLPASSWORD}" \
-      status
+      status > /dev/null 2>&1
     if [ $? -eq 0 ]; then
+      echo " ready!"
       break
     fi
-    echo "Waiting for database..."
+    echo -n "."
     sleep 1
   done
 fi
@@ -51,7 +53,6 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
       mysqladmin shutdown
       exit 0
   fi
-  mysqladmin shutdown
 else
   # if using external database
   mysqlshow \
@@ -62,7 +63,6 @@ else
   if [ $? -eq 0 ]
   then
       # if it does, do nothing
-      mysqladmin shutdown
       exit 0
   fi
 fi
@@ -130,7 +130,17 @@ INSTALLPOSTDATA+="&dbtype=mysql&createdb=createdb&dbroot="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
 INSTALLPOSTDATA+="&dbrootpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
-INSTALLPOSTDATA+="&dbhost=localhost&dbport=3306&dbname="
+INSTALLPOSTDATA+="&dbhost="
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('localhost');")
+else
+  # if using external database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLHOSTNAME}');")
+fi
+INSTALLPOSTDATA+="&dbport="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLPORT}');")
+INSTALLPOSTDATA+="&dbname="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLDATABASE}');")
 INSTALLPOSTDATA+="&dbuser="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLUSERNAME}');")
