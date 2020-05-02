@@ -46,7 +46,7 @@ docker run -d \
     mikenye/flightairmap
 ```
 
-On the first run of the container, the database will be populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
+On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
 * Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
 * Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
@@ -59,7 +59,7 @@ With regards to settings - where one exists, you should use an environment varia
 
 An example `docker-compose.yml` file is as follows:
 
-```shell
+```yaml
 version: '2.0'
 
 volumes:
@@ -84,7 +84,72 @@ services:
       - fam_webapp:/var/www/flightairmap
 ```
 
-On the first run of the container, the database will be populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
+On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
+
+* Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
+* Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
+
+With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
+
+## Quick Start with `docker-compose` using external database
+
+**NOTE**: The Docker command provided in this quick start is given as an example and parameters should be adjusted to suit your needs.
+
+An example `docker-compose.yml` file is as follows:
+
+```yaml
+version: '2.0'
+
+volumes:
+  fam_db:
+  fam_webapp:
+
+networks:
+  flightairmap:
+
+services:
+
+  flightairmap_db:
+    image: mariadb
+    command: --default-authentication-plugin=mysql_native_password
+    tty: true
+    container_name: flightairmap_db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=shai5Eisah7phe0aic5foote
+      - MYSQL_DATABASE=flightairmap
+      - MYSQL_USER=flightairmap
+      - MYSQL_PASSWORD=xi6Paig4yeitae3Pah9aew3j
+    volumes:
+      - fam_db:/var/lib/mysql
+    networks:
+      - flightairmap
+
+  flightairmap:
+    image: famtest:latest
+    tty: true
+    container_name: flightairmap
+    restart: always
+    ports:
+      - 6666:80
+    environment:
+      - TZ=Australia/Perth
+      - BASESTATIONHOST=readsb
+      - FAM_INSTALLPASSWORD="very_secure_password_12345"
+      - MYSQLHOSTNAME=flightairmap_db
+      - MYSQLDATABASE=flightairmap
+      - MYSQLUSERNAME=flightairmap
+      - MYSQLPASSWORD=xi6Paig4yeitae3Pah9aew3j
+      - MYSQLROOTPASSWORD=shai5Eisah7phe0aic5foote
+    volumes:
+      - fam_webapp:/var/www/flightairmap
+    networks:
+      - flightairmap
+    depends_on:
+      - flightairmap_db
+```
+
+On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
 * Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
 * Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
@@ -172,6 +237,18 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 `FAM_BITLYACCESSTOKENAPI`: Sets the `$globalBitlyAccessToken` variable in `require/settings.php`. Default is unset. Optional.
 
 `FAM_GEOID_SOURCE` Sets the `$globalGeoidSource` variable in `require/settings.php`. Default `egm96-15`. Optional.
+
+If you wish to use an external database:
+
+`MYSQLHOSTNAME` Sets the hostname of the mysql/mariadb server.
+
+`MYSQLPORT` Sets the port used to communicate to mysql/mariadb. Default `3306`. Optional.
+
+`MYSQLDATABASE` Sets the mysql/mariadb database name. Default `flightairmap`. Optional.
+
+`MYSQLUSERNAME` Sets the mysql/mariadb user name. Default `flightairmap`. Optional.
+
+`MYSQLPASSWORD` Sets the mysql/mariadb password.
 
 ### Data Volumes
 

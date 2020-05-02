@@ -5,6 +5,7 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
+DARKGRAY='\033[1;30m'
 
 if [ ! -z "${MYSQLHOSTNAME}" ]; then
   # if using external database
@@ -29,6 +30,7 @@ fi
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # Check if the flightairmap database exists
   # Start mysqld without permissions
+  echo -e $DARKGRAY
   /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
   # Wait for mysqld to init
   while :
@@ -40,6 +42,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
     fi
     sleep 0.5
   done
+  echo -e $NOCOLOR
 fi
 
 # See if flightairmap database exists
@@ -49,17 +52,19 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   if [ $? -eq 0 ]
   then
       # if it does, do nothing
+      echo -e $DARKGRAY
       mysqladmin shutdown
+      echo -e $NOCOLOR
       exit 0
   fi
 else
   # if using external database
-  mysqlshow \
+  NUMTABLES=$(mysqlanalyze \
     --host="${MYSQLHOSTNAME}" \
     --user="${MYSQLUSERNAME}" \
     --password="${MYSQLPASSWORD}" \
-    "${MYSQLDATABASE}" > /dev/null 2>&1
-  if [ $? -eq 0 ]
+    "${MYSQLDATABASE}" | wc -l)
+  if [ $NUMTABLES -gt 0 ]
   then
       # if it does, do nothing
       exit 0
@@ -81,6 +86,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
   MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
+  echo -e $DARKGRAY
   /usr/sbin/mysqld --console --log-error='' --silent-startup &
   # Wait for mysqld to init
   while :
@@ -93,17 +99,22 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
     echo "Waiting for database..."
     sleep 1
   done
+  echo -e $NOCOLOR
 fi
 
+echo -e $DARKGRAY
 /usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
+echo -e $NOCOLOR
 
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # Set mysql root password
+  echo -e $DARKGRAY
   mysqladmin -u root password "${MYSQLROOTPASSWORD}"
   mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
   mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
+  echo -e $NOCOLOR
 fi
 
 ########## Running install/index.php ##########
@@ -112,10 +123,12 @@ echo -e "${LIGHTCYAN}Running install/index.php${NOCOLOR}"
 echo ""
 
 # Initial visit to install/index.php to set up session cookie
+echo -e $DARKGRAY
 curl 'http://127.0.0.1/install/index.php' \
   -v \
   --cookie-jar /tmp/install_process_cookies \
   --compressed > /tmp/curl_install_01.log 2>&1
+echo -e $NOCOLOR
 
 # If no install password given, generate a random one. User can always pull it from settings.php.
 if [ -z "${FAM_INSTALLPASSWORD}" ]; then
@@ -125,17 +138,28 @@ fi
 # Prepare install/index.php POST data
 INSTALLPOSTDATA="installpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$FAM_INSTALLPASSWORD');")
-INSTALLPOSTDATA+="&dbtype=mysql&createdb=createdb&dbroot="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
+INSTALLPOSTDATA+="&dbtype=mysql"
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+="&createdb=createdb"
+fi
+INSTALLPOSTDATA+="&dbroot="
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
+fi
 INSTALLPOSTDATA+="&dbrootpass="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
+fi
 INSTALLPOSTDATA+="&dbhost="
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # if using local database
   INSTALLPOSTDATA+=$(php -r "echo urlencode('localhost');")
 else
   # if using external database
-  INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLHOSTNAME}');")
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLHOSTNAME');")
 fi
 INSTALLPOSTDATA+="&dbport="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLPORT}');")
@@ -218,6 +242,7 @@ INSTALLPOSTDATA+=$(php -r "echo urlencode('${FAM_GEOID_SOURCE}');")
 INSTALLPOSTDATA+="&resetyearstats=1&archiveresults=archiveresults&archivemonths=0&archivekeepmonths=0&archivekeeptrackmonths=0&daemon=daemon&cronend=0&colormap=colormap&flightroute=flightroute&flightremainingroute=flightremainingroute&allflights=allflights&refresh=200&maprefresh=30&mapidle=30&minfetch=50&closestmindist=50&aircraftsize=&airportzoom=7&customcss=&submit=Create%2FUpdate+database+%26+write+setup"
 
 # Mimic filling out install/index.php form and submitting
+echo -e $DARKGRAY
 curl 'http://127.0.0.1/install/index.php' \
   -v \
   --cookie /tmp/install_process_cookies \
@@ -227,11 +252,13 @@ curl 'http://127.0.0.1/install/index.php' \
   -H 'Connection: keep-alive' \
   -H 'Content-Type: application/x-www-form-urlencoded' \
   --data "${INSTALLPOSTDATA}" > /tmp/curl_install_02.log 2>&1
+echo -e $NOCOLOR
 
 # Get the next location from the output of previous command
 NEXTLOCATION=$(cat /tmp/curl_install_02.log  | grep -oP "window\.location\s+=\s+'.*'" | cut -d "'" -f 2)
 
 # Visit the next location
+echo -e $DARKGRAY
 curl "http://127.0.0.1/install/${NEXTLOCATION}" \
   -v \
   --cookie /tmp/install_process_cookies \
@@ -240,10 +267,12 @@ curl "http://127.0.0.1/install/${NEXTLOCATION}" \
   --compressed \
   -H 'Connection: keep-alive' \
   -H 'Referer: http://127.0.0.1/install/index.php' >> /tmp/curl_install_03.log 2>&1
+echo -e $NOCOLOR
 
 # Wait for the install to finish...
 while :
 do
+  echo -e $DARKGRAY
   # Get JSON status of install, output to temp file
   curl 'http://127.0.0.1/install/install-action.php' \
     --silent \
@@ -255,6 +284,7 @@ do
     -H 'X-Requested-With: XMLHttpRequest' \
     -H 'Connection: keep-alive' \
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+  echo -e $NOCOLOR
 
   # Get info from json
   INSTALLERROR=$(cat /tmp/install_process_status_json | jq ".error")
@@ -281,7 +311,7 @@ do
 
   else
     # If error, output json and exit
-    jq '.'
+    cat /tmp/install_process_status_json | jq "."
     echo ""
     echo -e "${LIGHTRED}${INSTALLERROR}${NOCOLOR}"
     echo ""
@@ -292,6 +322,7 @@ do
 done
 
 # Get final status of install
+echo -e $DARKGRAY
 curl 'http://127.0.0.1/install/index.php?next=finish' \
   --silent \
   --cookie /tmp/install_process_cookies \
@@ -300,7 +331,7 @@ curl 'http://127.0.0.1/install/index.php?next=finish' \
   --compressed \
   -H 'Connection: keep-alive' \
   -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" > /tmp/curl_install_04.log
-
+echo -e $NOCOLOR
 echo ""
 
 # Output status of install
@@ -310,18 +341,22 @@ html2text /tmp/curl_install_04.log | grep "\* "
 echo ""
 echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
 echo ""
+echo -e $DARKGRAY
 s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php
+echo -e $NOCOLOR
 
 # Stop temporary services
 echo ""
 echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
 echo ""
+echo -e $DARKGRAY
 pkill nginx
 pkill php-fpm
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
   mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
 fi
+echo -e $NOCOLOR
 
 echo ""
 echo -e "${LIGHTGREEN}First-run tasks finished OK (finally!)...${NOCOLOR}"

@@ -20,10 +20,6 @@ else
     echo -e "${LIGHTRED}ERROR: MYSQLHOSTNAME set, however MYSQLPASSWORD not set${NOCOLOR}"
     EXITCODE=1
   fi
-  if [ -z "${MYSQLROOTPASSWORD}" ]; then
-    echo -e "${LIGHTRED}ERROR: MYSQLHOSTNAME set, however MYSQLROOTPASSWORD not set${NOCOLOR}"
-    EXITCODE=1
-  fi
 fi
 
 
