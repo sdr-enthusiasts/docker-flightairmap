@@ -258,7 +258,7 @@ format: `<VOL_NAME>:<CONTAINER_DIR>[:PERMISSIONS]`.
 
 | Container path  | Permissions | Description |
 |-----------------|-------------|-------------|
-|`/var/lib/mysql`| rw | This is where the application database resides. |
+|`/var/lib/mysql`| rw | This is where the application database resides, if using the internal database. |
 |`/var/www/flightairmap`| rw | This is where the application itself resides. |
 
 It is suggested to make docker volumes for both of these areas, with the `docker volume create` command, and assign the volumes to the paths above.
