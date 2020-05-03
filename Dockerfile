@@ -37,6 +37,7 @@ ENV BASESTATIONPORT="30003" \
     FAM_SQUAWK_COUNTRY="EU" \
     MYSQLDATABASE=flightairmap \
     MYSQLUSERNAME=flightairmap \
+    MYSQLPORT=3306 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     TZ=UTC \
     WEBUSER=flightairmap

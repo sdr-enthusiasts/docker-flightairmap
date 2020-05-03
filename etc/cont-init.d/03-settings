@@ -12,6 +12,52 @@ if [ -z "${FAM_INSTALLPASSWORD}" ]; then
   FAM_INSTALLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 fi
 
+# Set database to mysql
+search="\$globalDBdriver = '"
+replace="\$globalDBdriver = 'mysql';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+# Set database hostname
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  search="\$globalDBhost = '"
+  replace="\$globalDBhost = 'localhost';"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+else
+  # if using external database
+  search="\$globalDBhost = '"
+  replace="\$globalDBhost = '${MYSQLHOSTNAME}';"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+fi
+
+# Set database username
+search="\$globalDBuser = '"
+replace="\$globalDBuser = '${MYSQLUSERNAME}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+# Set database password
+if [ ! -z "${MYSQLHOSTNAME}" ]; then
+  # if using external database
+  search="\$globalDBpass = '"
+  replace="\$globalDBpass = '${MYSQLPASSWORD}';"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+fi
+
+# Set database name
+search="\$globalDBname = '"
+replace="\$globalDBname = '${MYSQLDATABASE}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+# Set database port
+search="\$globalDBport = '"
+replace="\$globalDBport = '${MYSQLPORT}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+# Set database transaction support
+search="\$globalTransaction = '"
+replace="\$globalTransaction = TRUE;"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
 search="\$globalInstalled = FALSE;"
 replace="\$globalInstalled = TRUE;"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php

@@ -4,30 +4,69 @@
 NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
+LIGHTRED='\033[1;31m'
+DARKGRAY='\033[1;30m'
 
-# Check if the flightairmap database exists
-# Start mysqld without permissions
-/usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
-# Wait for mysqld to init
-while :
-do
-  mysqladmin status > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
-    break
-  fi
-  sleep 0.5
-done
+if [ ! -z "${MYSQLHOSTNAME}" ]; then
+  # if using external database
+  echo "Waiting for database..."
+  while :
+  do
+    mysqladmin \
+      --host="${MYSQLHOSTNAME}" \
+      --user="${MYSQLUSERNAME}" \
+      --password="${MYSQLPASSWORD}" \
+      status > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+      echo ""
+      break
+    fi
+    echo -n "."
+    sleep 1
+  done
+  echo "Database ready."
+fi
+
+# Only run the following commands if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # Check if the flightairmap database exists
+  # Start mysqld without permissions
+  /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
+  # Wait for mysqld to init
+  while :
+  do
+    mysqladmin status > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+      break
+    fi
+    sleep 0.5
+  done
+fi
 
 # See if flightairmap database exists
-mysqlshow "${MYSQLDATABASE}"
-if [ $? -eq 0 ]
-then
-    # if it does, do nothing
-    mysqladmin shutdown
-    exit 0
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1
+  if [ $? -eq 0 ]
+  then
+      # if it does, do nothing
+      mysqladmin shutdown
+      exit 0
+  fi
+else
+  # if using external database
+  NUMTABLES=$(mysqlanalyze \
+    --host="${MYSQLHOSTNAME}" \
+    --user="${MYSQLUSERNAME}" \
+    --password="${MYSQLPASSWORD}" \
+    "${MYSQLDATABASE}" | wc -l)
+  if [ $NUMTABLES -gt 0 ]
+  then
+      # if it does, do nothing
+      exit 0
+  fi
 fi
-mysqladmin shutdown
 
 # if it doesn't, then do the first run tasks
 echo -e "${LIGHTCYAN}"
@@ -35,37 +74,55 @@ echo "New installation detected. Performing first-run tasks..."
 echo "This takes a very long time, please be patient!"
 echo -e "${NOCOLOR}"
 
-# Generate random passwords
-MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
-MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
-
 # Start temporary services
 echo -e "${LIGHTCYAN}Starting temporary services... ${NOCOLOR}"
 
-/usr/sbin/mysqld --console --log-error='' --silent-startup &
-# Wait for mysqld to init
-while :
-do
-  mysqladmin status > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
-    break
-  fi
-  sleep 0.5
-done
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  # Generate random passwords
+  MYSQLROOTPASSWORD="$(pwgen -cns 30 999 | tail -1)"
+  MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
+  mysqladmin shutdown
+  /usr/sbin/mysqld --console --log-error='' --silent-startup &
+  # Wait for mysqld to init
+  echo "Waiting for database..."
+  while :
+  do
+    mysqladmin status > /dev/null 2>&1
+    if [ $? -eq 0 ]
+    then
+      echo ""
+      break
+    fi
+    echo -n "."
+    sleep 1
+  done
+  echo "Database ready."
+fi
+
+# temporarily disable nginx logging
+sed -i 's/access_log\ \/dev\/stdout\;/#&/' /etc/nginx/nginx.conf
+sed -i 's/error_log\ \/dev\/stdout/#&/' /etc/nginx/nginx.conf
+
+# Start temporary services
 /usr/sbin/php-fpm7.3 --daemonize
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
 
-# Set mysql root password
-mysqladmin -u root password "${MYSQLROOTPASSWORD}"
-mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
-mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
+# re-enable nginx access log
+sed -i '/#access_log\ \/dev\/stdout\;/s/#//' /etc/nginx/nginx.conf
+sed -i '/#error_log\ \/dev\/stdout/s/#//' /etc/nginx/nginx.conf
+
+# if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # Set mysql root password
+  mysqladmin -u root password "${MYSQLROOTPASSWORD}"
+  mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "GRANT ALL ON *.* TO 'root'@'localhost' WITH GRANT OPTION ;"
+  mysql -u root -D mysql --password="${MYSQLROOTPASSWORD}" -e "FLUSH PRIVILEGES ;"
+fi
 
 ########## Running install/index.php ##########
-echo ""
 echo -e "${LIGHTCYAN}Running install/index.php${NOCOLOR}"
-echo ""
 
 # Initial visit to install/index.php to set up session cookie
 curl 'http://127.0.0.1/install/index.php' \
@@ -81,11 +138,32 @@ fi
 # Prepare install/index.php POST data
 INSTALLPOSTDATA="installpass="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('$FAM_INSTALLPASSWORD');")
-INSTALLPOSTDATA+="&dbtype=mysql&createdb=createdb&dbroot="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
+INSTALLPOSTDATA+="&dbtype=mysql"
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+="&createdb=createdb"
+fi
+INSTALLPOSTDATA+="&dbroot="
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('root');")
+fi
 INSTALLPOSTDATA+="&dbrootpass="
-INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
-INSTALLPOSTDATA+="&dbhost=localhost&dbport=3306&dbname="
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLROOTPASSWORD');")
+fi
+INSTALLPOSTDATA+="&dbhost="
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  # if using local database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('localhost');")
+else
+  # if using external database
+  INSTALLPOSTDATA+=$(php -r "echo urlencode('$MYSQLHOSTNAME');")
+fi
+INSTALLPOSTDATA+="&dbport="
+INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLPORT}');")
+INSTALLPOSTDATA+="&dbname="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLDATABASE}');")
 INSTALLPOSTDATA+="&dbuser="
 INSTALLPOSTDATA+=$(php -r "echo urlencode('${MYSQLUSERNAME}');")
@@ -212,24 +290,23 @@ do
   then
 
     # If no error, then print status and wait until finished
-    echo ""
     echo -e "${LIGHTCYAN} - Installation status: ${INSTALLPHASE} / ${INSTALLNEXT}${NOCOLOR}"
-    echo ""
     if [ "$INSTALLNEXT" = '"finish"' ]
     then
       if [ "$INSTALLPHASE" = '"finish"' ]
       then
         echo -e "${LIGHTCYAN}Running install/index.php completed successfully!${NOCOLOR}"
-        echo ""
         break
       fi
     fi
 
   else
     # If error, output json and exit
-    jq '.'
-    exit  1
-
+    cat /tmp/install_process_status_json | jq "."
+    echo ""
+    echo -e "${LIGHTRED}${INSTALLERROR}${NOCOLOR}"
+    echo ""
+    exit 1
   fi
 
   sleep 1
@@ -245,25 +322,21 @@ curl 'http://127.0.0.1/install/index.php?next=finish' \
   -H 'Connection: keep-alive' \
   -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" > /tmp/curl_install_04.log
 
-echo ""
-
 # Output status of install
 html2text /tmp/curl_install_04.log | grep "\* "
 
 # Initial run of scripts/update_db.php
-echo ""
 echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
-echo ""
 s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php
 
 # Stop temporary services
-echo ""
 echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
-echo ""
 pkill nginx
 pkill php-fpm
-mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
+# if using local database
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  mysqladmin -u root --password="${MYSQLROOTPASSWORD}" shutdown
+fi
 
-echo ""
 echo -e "${LIGHTGREEN}First-run tasks finished OK (finally!)...${NOCOLOR}"
 echo ""

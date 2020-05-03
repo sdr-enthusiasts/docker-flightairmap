@@ -3,6 +3,8 @@
 
 NOCOLOR='\033[0m'
 YELLOW='\033[1;33m'
+LIGHTRED='\033[1;31m'
+LIGHTBLUE='\033[1;34m'
 
 # Check to make sure the correct command line arguments have been set
 EXITCODE=0
@@ -10,6 +12,17 @@ if [ -z "${FAM_INSTALLPASSWORD}" ]; then
   echo -e "${YELLOW}WARNING: FAM_INSTALLPASSWORD environment variable not set, using random password${NOCOLOR}"
   #EXITCODE=1
 fi
+
+if [ -z "${MYSQLHOSTNAME}" ]; then
+  echo -e "${LIGHTBLUE}INFO: MYSQLHOSTNAME not set, using local database${NOCOLOR}"
+else
+  if [ -z "${MYSQLPASSWORD}" ]; then
+    echo -e "${LIGHTRED}ERROR: MYSQLHOSTNAME set, however MYSQLPASSWORD not set${NOCOLOR}"
+    EXITCODE=1
+  fi
+fi
+
+
 if [ $EXITCODE -ne 0 ]; then
   exit 1
 fi
