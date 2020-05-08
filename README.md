@@ -2,7 +2,7 @@
 
 Docker container for [FlightAirMap](http://flightairmap.com).
 
-Builds and runs on x86_64, arm32v7 and arm64v8 (and possibly other architectures).
+Builds and runs on x86_64, arm32v6, arm32v7 and arm64v8 (and possibly other architectures).
 
 ---
 
