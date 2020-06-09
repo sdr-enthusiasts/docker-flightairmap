@@ -47,6 +47,7 @@ RUN set -x && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
         curl \
+        file \
         git \
         html2text \
         jq \
@@ -101,7 +102,10 @@ RUN set -x && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
     apt-get remove -y gnupg && \
     echo "========== Clean up ==========" && \
-    apt-get remove -y git && \
+    apt-get remove -y \
+        file \
+        git \
+        && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
