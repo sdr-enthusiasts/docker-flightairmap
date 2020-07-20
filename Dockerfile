@@ -42,6 +42,8 @@ ENV BASESTATIONPORT="30003" \
     TZ=UTC \
     WEBUSER=flightairmap
 
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
 RUN set -x && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends \
