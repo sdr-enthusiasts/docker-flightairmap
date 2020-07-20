@@ -94,11 +94,12 @@ RUN set -x && \
     chown -vR mysql:mysql /run/mysqld && \
     echo "========== Deploy FlightAirMap ==========" && \
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
-    cd /var/www/flightairmap/htdocs && \
+    pushd /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
+    popd && \
     echo "========== Deploy s6-overlay ==========" && \
     apt-get install --no-install-recommends -y gnupg && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
