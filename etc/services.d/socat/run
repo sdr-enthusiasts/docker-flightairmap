@@ -1,4 +1,5 @@
 #!/usr/bin/with-contenv sh
+# shellcheck shell=sh
 
 if [ -z "${BASESTATIONHOST}" ]; then
   sleep 3600  
