@@ -35,9 +35,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   # Wait for mysqld to init
   while :
   do
-    mysqladmin status > /dev/null 2>&1
-    if [ $? -eq 0 ]
-    then
+    if mysqladmin status > /dev/null 2>&1; then
       break
     fi
     sleep 0.5
