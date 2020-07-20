@@ -23,8 +23,8 @@ else
 fi
 
 
-if [ $EXITCODE -ne 0 ]; then
+if [ "$EXITCODE" -ne 0 ]; then
   exit 1
 fi
 
-ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
