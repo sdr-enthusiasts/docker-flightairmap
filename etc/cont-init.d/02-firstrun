@@ -61,8 +61,7 @@ else
     --user="${MYSQLUSERNAME}" \
     --password="${MYSQLPASSWORD}" \
     "${MYSQLDATABASE}" | wc -l)
-  if [ $NUMTABLES -gt 0 ]
-  then
+  if [ "$NUMTABLES" -gt 0 ]; then
       # if it does, do nothing
       exit 0
   fi
