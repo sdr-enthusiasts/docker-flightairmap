@@ -5,19 +5,17 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
-DARKGRAY='\033[1;30m'
 
-if [ ! -z "${MYSQLHOSTNAME}" ]; then
+if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
   echo "Waiting for database..."
   while :
   do
-    mysqladmin \
+    if mysqladmin \
       --host="${MYSQLHOSTNAME}" \
       --user="${MYSQLUSERNAME}" \
       --password="${MYSQLPASSWORD}" \
-      status > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
+      status > /dev/null 2>&1; then
       echo ""
       break
     fi
@@ -35,9 +33,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   # Wait for mysqld to init
   while :
   do
-    mysqladmin status > /dev/null 2>&1
-    if [ $? -eq 0 ]
-    then
+    if mysqladmin status > /dev/null 2>&1; then
       break
     fi
     sleep 0.5
@@ -47,9 +43,7 @@ fi
 # See if flightairmap database exists
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # if using local database
-  mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
+  if mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1; then
       # if it does, do nothing
       mysqladmin shutdown
       exit 0
@@ -61,8 +55,7 @@ else
     --user="${MYSQLUSERNAME}" \
     --password="${MYSQLPASSWORD}" \
     "${MYSQLDATABASE}" | wc -l)
-  if [ $NUMTABLES -gt 0 ]
-  then
+  if [ "$NUMTABLES" -gt 0 ]; then
       # if it does, do nothing
       exit 0
   fi
@@ -89,9 +82,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   echo "Waiting for database..."
   while :
   do
-    mysqladmin status > /dev/null 2>&1
-    if [ $? -eq 0 ]
-    then
+    if mysqladmin status > /dev/null 2>&1; then
       echo ""
       break
     fi
@@ -253,7 +244,7 @@ curl 'http://127.0.0.1/install/index.php' \
   --data "${INSTALLPOSTDATA}" > /tmp/curl_install_02.log 2>&1
 
 # Get the next location from the output of previous command
-NEXTLOCATION=$(cat /tmp/curl_install_02.log  | grep -oP "window\.location\s+=\s+'.*'" | cut -d "'" -f 2)
+NEXTLOCATION=$(grep -oP "window\.location\s+=\s+'.*'" /tmp/curl_install_02.log | cut -d "'" -f 2)
 
 # Visit the next location
 curl "http://127.0.0.1/install/${NEXTLOCATION}" \
@@ -281,9 +272,9 @@ do
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
 
   # Get info from json
-  INSTALLERROR=$(cat /tmp/install_process_status_json | jq ".error")
-  INSTALLNEXT=$(cat /tmp/install_process_status_json | jq ".next")
-  INSTALLPHASE=$(cat /tmp/install_process_status_json | jq ".install")
+  INSTALLERROR=$(jq ".error" < /tmp/install_process_status_json)
+  INSTALLNEXT=$(jq ".next" < /tmp/install_process_status_json)
+  INSTALLPHASE=$(jq ".install" < /tmp/install_process_status_json)
 
   # Check for errors with install
   if [ "${INSTALLERROR}" = '""' ]
@@ -302,7 +293,7 @@ do
 
   else
     # If error, output json and exit
-    cat /tmp/install_process_status_json | jq "."
+    jq "." < /tmp/install_process_status_json
     echo ""
     echo -e "${LIGHTRED}${INSTALLERROR}${NOCOLOR}"
     echo ""

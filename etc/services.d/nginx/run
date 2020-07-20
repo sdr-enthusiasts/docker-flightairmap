@@ -1,3 +1,5 @@
 #!/usr/bin/with-contenv sh
+# shellcheck shell=sh
+
 /usr/sbin/nginx 2>&1 | awk '{print "[nginx] " $0}'
 

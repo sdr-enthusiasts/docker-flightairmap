@@ -36,7 +36,7 @@ replace="\$globalDBuser = '${MYSQLUSERNAME}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 # Set database password
-if [ ! -z "${MYSQLHOSTNAME}" ]; then
+if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
   search="\$globalDBpass = '"
   replace="\$globalDBpass = '${MYSQLPASSWORD}';"
