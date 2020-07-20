@@ -7,7 +7,7 @@ LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
 DARKGRAY='\033[1;30m'
 
-if [ ! -z "${MYSQLHOSTNAME}" ]; then
+if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
   echo "Waiting for database..."
   while :
