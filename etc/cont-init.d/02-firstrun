@@ -47,9 +47,7 @@ fi
 # See if flightairmap database exists
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # if using local database
-  mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1
-  if [ $? -eq 0 ]
-  then
+  if mysqlshow "${MYSQLDATABASE}" > /dev/null 2>&1; then
       # if it does, do nothing
       mysqladmin shutdown
       exit 0
