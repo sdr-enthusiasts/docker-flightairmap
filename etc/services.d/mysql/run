@@ -1,4 +1,6 @@
 #!/usr/bin/with-contenv sh
+# shellcheck shell=sh
+
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
     /usr/sbin/mysqld --console --log-error='' 2>&1 | awk '{print "[mariadb] " $0}'
