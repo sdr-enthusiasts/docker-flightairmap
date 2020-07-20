@@ -97,7 +97,7 @@ RUN set -x && \
     pushd /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
-    git log | head -1 | tr -s " " "_" | tee /VERSION && \
+    git log | head -1 | tr -s " " "_" | tee /VERSION || true && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
     popd && \
     echo "========== Deploy s6-overlay ==========" && \
