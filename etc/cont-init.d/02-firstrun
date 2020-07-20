@@ -12,12 +12,11 @@ if [ ! -z "${MYSQLHOSTNAME}" ]; then
   echo "Waiting for database..."
   while :
   do
-    mysqladmin \
+    if mysqladmin \
       --host="${MYSQLHOSTNAME}" \
       --user="${MYSQLUSERNAME}" \
       --password="${MYSQLPASSWORD}" \
-      status > /dev/null 2>&1
-    if [ $? -eq 0 ]; then
+      status > /dev/null 2>&1; then
       echo ""
       break
     fi
