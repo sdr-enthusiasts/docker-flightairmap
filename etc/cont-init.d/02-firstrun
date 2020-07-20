@@ -5,7 +5,6 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
-DARKGRAY='\033[1;30m'
 
 if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
