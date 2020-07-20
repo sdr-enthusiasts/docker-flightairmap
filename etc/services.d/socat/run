@@ -3,6 +3,6 @@
 if [ -z "${BASESTATIONHOST}" ]; then
   sleep 3600  
 else
-  socat -d -d TCP-LISTEN:30003,fork TCP:${BASESTATIONHOST}:${BASESTATIONPORT}
+  socat -d -d TCP-LISTEN:30003,fork TCP:"${BASESTATIONHOST}":"${BASESTATIONPORT}"
 fi
 
