@@ -5,6 +5,7 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
+# YELLOW='\033[1;33m'
 
 if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
@@ -259,6 +260,7 @@ curl "http://127.0.0.1/install/${NEXTLOCATION}" \
 # Wait for the install to finish...
 while :
 do
+
   # Get JSON status of install, output to temp file
   curl 'http://127.0.0.1/install/install-action.php' \
     --silent \
@@ -270,6 +272,17 @@ do
     -H 'X-Requested-With: XMLHttpRequest' \
     -H 'Connection: keep-alive' \
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+
+  # # check to make sure the json is valid
+  # if ! jq "." < /tmp/install_process_status_json > /dev/null 2>&1; then
+  #   echo ""
+  #   echo -e "${YELLOW}WARNING: Invalid JSON returned:${NOCOLOR}"
+  #   cat /tmp/install_process_status_json
+  #   echo ""
+  #   echo -e "${YELLOW}Attempting to continue...${NOCOLOR}"
+  #   echo ""
+  #   break
+  # fi
 
   # Get info from json
   INSTALLERROR=$(jq ".error" < /tmp/install_process_status_json)
@@ -318,7 +331,8 @@ html2text /tmp/curl_install_04.log | grep "\* "
 
 # Initial run of scripts/update_db.php
 echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
-s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php
+s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php 2>&1 | \
+  mawk -W Interactive '! / Parameter must be an array or an object that implements Countable in /'
 
 # Stop temporary services
 echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
