@@ -260,6 +260,9 @@ curl "http://127.0.0.1/install/${NEXTLOCATION}" \
 # Wait for the install to finish...
 while :
 do
+
+  date
+
   # Get JSON status of install, output to temp file
   curl 'http://127.0.0.1/install/install-action.php' \
     --silent \
@@ -272,7 +275,9 @@ do
     -H 'Connection: keep-alive' \
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
 
-  # check to make sure the json is valid.
+  date
+
+  # check to make sure the json is valid
   if ! jq "." < /tmp/install_process_status_json > /dev/null 2>&1; then
     echo ""
     echo -e "${YELLOW}WARNING: Invalid JSON returned:${NOCOLOR}"
