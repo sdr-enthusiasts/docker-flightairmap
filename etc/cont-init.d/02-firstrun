@@ -7,6 +7,7 @@ NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
 LIGHTRED='\033[1;31m'
+YELLOW='\033[1;33m'
 
 if [ -n "${MYSQLHOSTNAME}" ]; then
   # if using external database
@@ -276,9 +277,10 @@ do
   # check to make sure the json is valid.
   if ! jq "." < /tmp/install_process_status_json > /dev/null 2>&1; then
     echo ""
+    echo -e "${YELLOW}WARNING: Invalid JSON returned:${NOCOLOR}"
     cat /tmp/install_process_status_json
     echo ""
-    echo -e "${LIGHTRED}WARNING: Invalid JSON returned, attempting to continue...${NOCOLOR}"
+    echo -e "${YELLOW}Attempting to continue...${NOCOLOR}"
     echo ""
     break
   fi
