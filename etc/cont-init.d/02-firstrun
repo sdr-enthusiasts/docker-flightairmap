@@ -277,6 +277,10 @@ do
   cat /tmp/install_process_status_json
   echo ""
 
+  if cat /tmp/install_process_status_json | head -1 | grep '<html>'; then
+    break
+  fi
+
   # Get info from json
   INSTALLERROR=$(jq ".error" < /tmp/install_process_status_json)
   INSTALLNEXT=$(jq ".next" < /tmp/install_process_status_json)
