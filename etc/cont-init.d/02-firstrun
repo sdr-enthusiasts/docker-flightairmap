@@ -332,7 +332,7 @@ html2text /tmp/curl_install_04.log | grep "\* "
 # Initial run of scripts/update_db.php
 echo -e "${LIGHTCYAN}Performing first-run of scripts/update_db.php, this will take a very long time...${NOCOLOR}"
 s6-setuidgid "${WEBUSER}" php /var/www/flightairmap/htdocs/scripts/update_db.php 2>&1 | \
-  awk -W Interactive '! / Parameter must be an array or an object that implements Countable in /'
+  mawk -W Interactive '! / Parameter must be an array or an object that implements Countable in /'
 
 # Stop temporary services
 echo -e "${LIGHTCYAN}  - Stopping temporary services... ${NOCOLOR}"
