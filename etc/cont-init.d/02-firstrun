@@ -273,11 +273,13 @@ do
     -H 'Connection: keep-alive' \
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
 
-  echo ""
-  cat /tmp/install_process_status_json
-  echo ""
-
-  if cat /tmp/install_process_status_json | head -1 | grep '<html>'; then
+  # check to make sure the json is valid.
+  if ! jq "." < /tmp/install_process_status_json > /dev/null 2>&1; then
+    echo ""
+    cat /tmp/install_process_status_json
+    echo ""
+    echo -e "${LIGHTRED}WARNING: Invalid JSON returned, attempting to continue...${NOCOLOR}"
+    echo ""
     break
   fi
 
