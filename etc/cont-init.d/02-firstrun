@@ -1,6 +1,8 @@
 #!/usr/bin/with-contenv /bin/bash
 #shellcheck shell=bash
 
+set -x
+
 NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
@@ -270,6 +272,10 @@ do
     -H 'X-Requested-With: XMLHttpRequest' \
     -H 'Connection: keep-alive' \
     --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+
+  echo ""
+  cat /tmp/install_process_status_json
+  echo ""
 
   # Get info from json
   INSTALLERROR=$(jq ".error" < /tmp/install_process_status_json)
