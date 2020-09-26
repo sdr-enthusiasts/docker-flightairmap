@@ -9,7 +9,7 @@ export DOCKER_CLI_EXPERIMENTAL="enabled"
 docker buildx use homecluster
 
 # Build the image using buildx
-docker buildx build -t "${REPO}/${IMAGE}:latest" --compress --push --platform "${PLATFORMS}" .
+docker buildx build -t "${REPO}/${IMAGE}:latest" --no-cache --compress --push --platform "${PLATFORMS}" .
 docker pull "${REPO}/${IMAGE}:latest"
 
 VERSION=$(docker run --rm --entrypoint cat "${REPO}/${IMAGE}:latest" /VERSION | cut -c1-14)
