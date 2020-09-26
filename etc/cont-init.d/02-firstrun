@@ -266,16 +266,29 @@ while :
 do
 
   # Get JSON status of install, output to temp file
-  curl 'http://127.0.0.1/install/install-action.php' \
-    --silent \
-    --cookie /tmp/install_process_cookies \
-    --cookie-jar /tmp/install_process_cookies \
-    -H 'Accept: application/json, text/javascript, */*; q=0.01' \
-    -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" \
-    --compressed \
-    -H 'X-Requested-With: XMLHttpRequest' \
-    -H 'Connection: keep-alive' \
-    --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+  if [ -n "${VERBOSE_LOGGING}" ]; then
+    curl 'http://127.0.0.1/install/install-action.php' \
+      --verbose \
+      --cookie /tmp/install_process_cookies \
+      --cookie-jar /tmp/install_process_cookies \
+      -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+      -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" \
+      --compressed \
+      -H 'X-Requested-With: XMLHttpRequest' \
+      -H 'Connection: keep-alive' \
+      --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+  else
+    curl 'http://127.0.0.1/install/install-action.php' \
+      --silent \
+      --cookie /tmp/install_process_cookies \
+      --cookie-jar /tmp/install_process_cookies \
+      -H 'Accept: application/json, text/javascript, */*; q=0.01' \
+      -H "Referer: http://127.0.0.1/install/${NEXTLOCATION}" \
+      --compressed \
+      -H 'X-Requested-With: XMLHttpRequest' \
+      -H 'Connection: keep-alive' \
+      --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+  fi
 
   # # check to make sure the json is valid
   # if ! jq "." < /tmp/install_process_status_json > /dev/null 2>&1; then
