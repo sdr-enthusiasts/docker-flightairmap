@@ -64,7 +64,7 @@ sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.
 
 
 # Remove any encasing quotes in FAM_INSTALLPASSWORD
-if echo '${FAM_INSTALLPASSWORD}' | grep -P '^".*"$'; then
+if echo "${FAM_INSTALLPASSWORD}" | grep -P '^".*"$'; then
   FAM_INSTALLPASSWORD=${FAM_INSTALLPASSWORD:1:-1}
 fi
 
