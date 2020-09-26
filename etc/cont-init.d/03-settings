@@ -62,6 +62,13 @@ search="\$globalInstalled = FALSE;"
 replace="\$globalInstalled = TRUE;"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
+
+# Remove any encasing quotes in FAM_INSTALLPASSWORD
+if echo '${FAM_INSTALLPASSWORD}' | grep -P '^".*"$'; then
+  FAM_INSTALLPASSWORD=${FAM_INSTALLPASSWORD:1:-1}
+fi
+
+# Set install password
 search="\$globalInstallPassword = '"
 replace="\$globalInstallPassword = '${FAM_INSTALLPASSWORD}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
