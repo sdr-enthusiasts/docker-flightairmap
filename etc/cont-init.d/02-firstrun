@@ -267,6 +267,7 @@ do
 
   # Get JSON status of install, output to temp file
   if [ -n "${VERBOSE_LOGGING}" ]; then
+    date
     curl 'http://127.0.0.1/install/install-action.php' \
       --verbose \
       --cookie /tmp/install_process_cookies \
@@ -277,6 +278,10 @@ do
       -H 'X-Requested-With: XMLHttpRequest' \
       -H 'Connection: keep-alive' \
       --cookie-jar /tmp/install_process_cookies > /tmp/install_process_status_json
+    date
+    echo "Response JSON:"
+    cat /tmp/install_process_status_json
+    echo "End response JSON."
   else
     curl 'http://127.0.0.1/install/install-action.php' \
       --silent \
