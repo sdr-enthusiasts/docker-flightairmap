@@ -1,6 +1,10 @@
 #!/usr/bin/with-contenv /bin/bash
 #shellcheck shell=bash
 
+if [ -n "${VERBOSE_LOGGING}" ]; then
+  set -x
+fi
+
 NOCOLOR='\033[0m'
 LIGHTGREEN='\033[1;32m'
 LIGHTCYAN='\033[1;36m'
