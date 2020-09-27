@@ -270,6 +270,7 @@ do
     date
     curl 'http://127.0.0.1/install/install-action.php' \
       --verbose \
+      --progress-bar \
       --cookie /tmp/install_process_cookies \
       --cookie-jar /tmp/install_process_cookies \
       -H 'Accept: application/json, text/javascript, */*; q=0.01' \
