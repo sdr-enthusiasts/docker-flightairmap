@@ -18,6 +18,7 @@ if [ -n "${MYSQLHOSTNAME}" ]; then
   do
     if mysqladmin \
       --host="${MYSQLHOSTNAME}" \
+      --port="${MYSQLPORT}" \
       --user="${MYSQLUSERNAME}" \
       --password="${MYSQLPASSWORD}" \
       status > /dev/null 2>&1; then
@@ -57,6 +58,7 @@ else
   # if using external database
   NUMTABLES=$(mysqlanalyze \
     --host="${MYSQLHOSTNAME}" \
+    --port="${MYSQLPORT}" \
     --user="${MYSQLUSERNAME}" \
     --password="${MYSQLPASSWORD}" \
     "${MYSQLDATABASE}" | wc -l)
