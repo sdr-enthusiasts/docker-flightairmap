@@ -13,6 +13,7 @@ if [ -z "${FAM_INSTALLPASSWORD}" ]; then
   #EXITCODE=1
 fi
 
+# Make sure database hostname/password have been set OK
 if [ -z "${MYSQLHOSTNAME}" ]; then
   echo -e "${LIGHTBLUE}INFO: MYSQLHOSTNAME not set, using local database${NOCOLOR}"
 else
@@ -22,9 +23,10 @@ else
   fi
 fi
 
-
+# If any sanity checks if failed, exit
 if [ "$EXITCODE" -ne 0 ]; then
   exit 1
 fi
 
+# Set up timezone
 ln -snf "/usr/share/zoneinfo/$TZ" /etc/localtime && echo "$TZ" > /etc/timezone
