@@ -5,5 +5,5 @@
 if [ -z "${MYSQLHOSTNAME}" ]; then
     /usr/sbin/mysqld --console --log-error='' 2>&1 | awk '{print "[mariadb] " $0}'
 else
-    sleep 3600
+    sleep 86400
 fi
