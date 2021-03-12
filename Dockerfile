@@ -58,7 +58,9 @@ RUN set -x && \
         procps \
         wget \
         pwgen \
+        less \
         && \
+    # TODO: remove less before going live
     useradd -d "/home/${WEBUSER}" -m -r -U "${WEBUSER}" && \
     echo "========== Setup locales ==========" && \
     echo "en_US ISO-8859-1" >> /etc/locale.gen && \
