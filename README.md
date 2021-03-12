@@ -156,63 +156,155 @@ On the first run of the container, the database will be created & populated and 
 
 With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
-### Environment Variables
+## Environment Variables
 
 To customize some properties of the container, the following environment
 variables can be passed via the `-e` parameter (one for each variable).  Value
 of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
-`TZ`: Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional.
+| Environment Variable | Explanation |
+|----------------------|-------------|
+| `TZ` | Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional. |
 
-`FAM_INSTALLPASSWORD`: Sets the `$globalInstallPassword` variable in `require/settings.php`. The password to access the install area. If not given, a randomly password will be generated and used. To obtain the generated password, you can issue the command `docker exec flightairmap cat /var/www/flightairmap/htdocs/require/settings.php | grep globalInstallPassword`. Optional.
+### Install Script Configuration
 
-`BASESTATIONHOST`: You can specify the IP or hostname of a host/container running `readsb` or `dump1090`. See [mikenye/readsb](https://hub.docker.com/r/mikenye/readsb). If given, FlightAirMap will pull ADS-B data from the specified host/container. Without this, you'll need to set up your own sources via the install area. Default is unset. Optional.
+| Environment Variable | Controls which variable<br />in `require/settings.php` | Controls which variable<br />on install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_INSTALLPASSWORD` | `$globalInstallPassword` | Install password | The password to access the install area. If not given, a randomly password will be generated and used. To obtain the generated password, you can issue the command `docker exec flightairmap grep globalInstallPassword /var/www/flightairmap/htdocs/require/settings.php`. Optional. |
 
-`BASESTATIONPORT`: If your `readsb` or `dump1090` is running on a non-standard TCP port, you can change it here. Default `30003`. Optional.
+### Site Configuration
 
-`FAM_GLOBALSITENAME`: Sets the `$globalName` variable in `require/settings.php`.The name of your site. Default `My FlightAirMap Site`. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_GLOBALSITENAME` | `$globalName` | Site name | The name of your site. Default `My FlightAirMap Site`. Optional. |
+| `FAM_GLOBALURL` | `$globalURL` | Site directory | Set to the site's base URL, if hosting the site with an alternate base URL. For example, if the complete URL is `http://your_hostname/flightairmap`, set this to `/flightairmap`. |
+| `FAM_GLOBALTIMEZONE` | `$globalTimezone` | Timezone | The timezone for your FlightAirMap installation, in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Optional. If not set, will be set to the value of `TZ`. |
+| `FAM_LANGUAGE` | `$globalLanguage` | Language | Interface language. Can be set to `EN`, `DE` or `FR`. Default `EN`. Optional. |
 
-`FAM_LANGUAGE`: Sets the `$globalLanguage` variable in `require/settings.php`. Interface language. Can be set to `EN`, `DE` or `FR`. Default `EN`. Optional.
+### Map Provider
 
-`FAM_MAPPROVIDER`: Sets the `$globalMapProvider` variable in `require/settings.php`. Can be `Mapbox`, `OpenStreetMap`, `MapQuest-OSM` or `MapQuest-Aerial`. Default `OpenStreetMap`. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_MAPPROVIDER` | `$globalMapProvider` | Default map provider | Can be `Mapbox`, `OpenStreetMap`, `MapQuest-OSM` or `MapQuest-Aerial`. Default `OpenStreetMap`. Optional. |
+| `FAM_MAPBOXID` | `$globalMapboxId` | Mapbox id | If using Mapbox, you can optionally set your Mapbox ID. Default: "examples.map-i86nkdio". Optional. |
+| `FAM_MAPBOXTOKEN` | `$globalMapboxToken` | Mapbox token | If using Mapbox, you can optionally set your Mapbox token. Default is unset. Optional. |
+| `FAM_GOOGLEKEY` | `$globalGoogleAPIKey` | Google API key | If using Google Maps, you can optionally set your Google Maps API key. Default is unset. Optional. |
+| `FAM_BINGKEY` | `$globalBingMapKey` | Bing Map key | If using Bing Maps, you can optionally set your Bing Maps key. Default is unset. Optional. |
+| `FAM_MAPQUESTKEY` | `$globalMapQuestKey` | MapQuest key | If using MapQuest, you can optionally set your MapQuest key. Default is unset. Optional. |
+| `FAM_HEREAPPID` | `$globalHereappID` | Here App_Id | If using Here, you can optionally set your App_Id. Default is unset. Optional. |
+| `FAM_HEREAPPCODE` | `$globalHereappCode` | Here App_Code | If using Here, you can optionally set your App_Code. Default is unset. Optional. |
+| `FAM_OPENWEATHERMAPKEY` | `$globalOpenWeatherMapKey` | OpenWeatherMap key (weather layer) | If using OpenWeatherMap, you can optionally set your key. Default is unset. Optional. |
 
-`FAM_MAPBOXID`: Sets the `$globalMapboxId` variable in `require/settings.php`. Default: "examples.map-i86nkdio" Optional.
+Map Provider API Access:
 
-`FAM_MAPBOXTOKEN`: Sets the `$globalMapboxToken` variable in `require/settings.php`. Default is unset. Optional.
+* You can apply for Mapbox API access here: <https://www.mapbox.com/developers/>
+* You can apply for Google Maps API access here: <https://developers.google.com/maps/documentation/javascript/get-api-key#get-an-api-key>
+* You can apply for Bing Maps API access here: <https://www.bingmapsportal.com/>
+* You can apply for MapQuest API access here: <https://developer.mapquest.com/user/me/apps>
+* You can apply for Here API access here: <https://developer.here.com/rest-apis/documentation/enterprise-map-tile/topics/quick-start.html>
+* You can apply for OpenWeatherMap API access here: <https://openweathermap.org/>
 
-`FAM_GOOGLEKEY`: Sets the `$globalGoogleAPIKey` variable in `require/settings.php`. Default is unset. Optional.
+### Offline Mode
 
-`FAM_BINGKEY`: Sets the `$globalBingMapKey` variable in `require/settings.php`. Default is unset. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_GLOBALMAPOFFLINE` | `$globalMapOffline` | Map offline mode | Set to any value, and map offline mode will not use network to display map but Natural Earth. Default is unset. Optional. |
+| `FAM_GLOBALOFFLINE` | `$globalOffline` | Offline mode | Set to any value, and backend will not use network. Default is unset. Optional.
 
-`FAM_MAPQUESTKEY`: Sets the `$globalMapQuestKey` variable in `require/settings.php`. Default is unset. Optional.
+### Coverage Area
 
-`FAM_HEREAPPID`: Sets the `$globalHereappID` variable in `require/settings.php`. Default is unset. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_LATITUDEMAX` | `$globalLatitudeMax` | The maximum latitude (north) | Default is `46.92`. Optional. |
+| `FAM_LATITUDEMIN` | `$globalLatitudeMin` | The minimum latitude (south) | Default is `42.14`. Optional. |
+| `FAM_LONGITUDEMAX` | `$globalLongitudeMax` | The maximum longitude (west) | Default is `6.2`. Optional. |
+| `FAM_LONGITUDEMIN` | `$globalLongitudeMin` | The minimum longitude (east) | Default is `1.0`. Optional. |
+| `FAM_LATITUDECENTER` | `$globalCenterLatitude` | The latitude center | Default is `46.38`. Optional. |
+| `FAM_LONGITUDECENTER` | `$globalCenterLongitude` | The longitude center | Default is `5.29`. Optional. |
+| `FAM_LIVEZOOM` | `$globalLiveZoom` | Default Zoom on live map | Default is `9`. Optional. |
+| `FAM_SQUAWK_COUNTRY` | `$globalSquawkCountry` | Country for squawk usage | Can be set to `UK`, `NZ`, `US`, `AU`, `NL`, `FR` or `TR`. Default `EU`. Optional. |
 
-`FAM_HEREAPPCODE`: Sets the `$globalHereappCode` variable in `require/settings.php`. Default is unset. Optional.
+### Data Source
 
-`FAM_OPENWEATHERMAPKEY`: Sets the `$globalOpenWeatherMapKey` variable in `require/settings.php`. Default is unset. Optional.
+#### Virtual Marine
 
-`FAM_LATITUDEMAX`: Sets the `$globalLatitudeMax` variable in `require/settings.php`. Default is `46.92`. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_GLOBALVM` | `$globalVM` | Virtual marine (checkbox) | Set to any value to enable virtual marine. Default is unset. Optional. |
+| `FAM_SAILAWAYEMAIL` | `$globalSailaway` | Sailaway email | If using Sailaway full format, set this to your sailaway email. Default is unset. Optional. |
+| `FAM_SAILAWAYPASSWORD` | `$globalSailaway` | Sailaway password | If using Sailaway full format, set this to your sailaway password. Default is unset. Optional. |
+| `FAM_SAILAWAYKEY` | `$globalSailaway` | Sailaway API key | If using Sailaway full format, set this to your sailaway API key. Default is unset. Optional. |
 
-`FAM_LATITUDEMIN`: Sets the `$globalLatitudeMin` variable in `require/settings.php`. Default is `42.14`. Optional.
+### Sources
 
-`FAM_LONGITUDEMAX`: Sets the `$globalLongitudeMax` variable in `require/settings.php`. Default is `6.2`. Optional.
+| Environment Variable | Controls which<br />variable in<br />`require/settings.php` | Controls which<br />variable on<br />install page | Explanation |
+|----------------------|--------------------------------------------------------|----------------------------------------------|-------------|
+| `FAM_GLOBALSOURCES` | `$globalSources` | Sources | See below. |
 
-`FAM_LONGITUDEMIN`: Sets the `$globalLongitudeMin` variable in `require/settings.php`. Default is `1.0`. Optional.
+The `FAM_GLOBALSOURCES` variable allows you to configure outgoing connections. The variable takes a semicolon (`;`) separated list of:
 
-`FAM_LATITUDECENTER`: Sets the `$globalCenterLatitude` variable in `require/settings.php`. Default is `46.38`. Optional.
+```
+  host_or_url,port_or_callback,format,name,source_stats,no_archive,timezone
+```
 
-`FAM_LONGITUDECENTER`: Sets the `$globalCenterLongitude` variable in `require/settings.php`. Default is `5.29`. Optional.
+...where:
 
-`FAM_LIVEZOOM`: Sets the `$globalLiveZoom` variable in `require/settings.php`. Default is `9`. Optional.
+* `host_or_url` is the hostname, IP address or URL of the source data provider. This corresponds to the "Host/URL" column on the install page.
+* `port_or_callback` is the TCP port, UDP port or callback password of the source data provider. This corresponds to the "Port/Callback Pass" column on the install page.
+* `format` is the format of the source data. See below for the list of supported values and what format they correspond to.
+* `source_stats` is whether or not the "Source Stats" column is checked on the install page.
+* `no_archive` is whether or not the "No Archive" column is checked on the install page.
+* `timezone` is the timezone of the data source in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
 
-`FAM_SQUAWK_COUNTRY`: Sets the `$globalSquawkCountry` variable in `require/settings.php`. Can be set to `UK`, `NZ`, `US`, `AU`, `NL`, `FR` or `TR`. Default `EU`. Optional.
+The `format` setting can be one of the following:
 
-`FAM_SAILAWAYEMAIL`: Sets the `$globalSailaway` array's `email` value in `require/settings.php`. Default is unset. Optional.
+| `format` setting | Corresponds to Format column<br />drop-down on the install page |
+|------------------|------------------------------------------------------------|
+| `auto` | Auto |
+| `sbs` | SMS |
+| `tsv` | TSV |
+| `raw` | Raw |
+| `aircraftjson` | Dump1090 aircraft.json |
+| `planefinderclient` | Planefinder client |
+| `aprs` | APRS |
+| `deltadbtxt` | Radarcape deltadb.txt |
+| `radarcapejson` | Radarcape json |
+| `vatsimtxt` | Vatsim |
+| `aircraftlistjson` | Virtual Radar Server AircraftList.json |
+| `vrstcp` | "Virtual Radar Server TCP" |
+| `phpvmacars` | phpVMS |
+| `vaos` | Virtual Airline Operations System (VAOS) |
+| `vam` | Virtual Airlines Manager |
+| `whazzup` | IVAO |
+| `flightgearmp` | FlightGear Multiplayer |
+| `flightgearsp` | FlightGear Singleplayer |
+| `acars` | ACARS from acarsdec/acarsdeco2 over UDP |
+| `acarssbs3` | ACARS SBS-3 over TCP |
+| `acarsjson` | ACARS from acarsdec json and vdlm2dec |
+| `acarsjsonudp` | ACARS from acarsdec json and vdlm2dec over UDP |
+| `ais` | NMEA AIS over TCP |
+| `airwhere` | AirWhere website |
+| `hidnseek_callback` | HidnSeek Callback |
+| `blitzortung` | Blitzortung |
+| `sailaway` | Sailaway |
+| `sailawayfull` | Sailaway with missions, races,... |
 
-`FAM_SAILAWAYPASSWORD`: Sets the `$globalSailaway` array's `password` value in `require/settings.php`. Default is unset. Optional.
+For example:
 
-`FAM_SAILAWAYKEY`: Sets the `$globalSailaway` array's `key` value in `require/settings.php`. Default is unset. Optional.
+To read SBS data from a host:
+
+```
+FAM_GLOBALSOURCES=192.168.100.100,30003,sbs,Basestation Data,false,false,UTC
+```
+
+Note, the following command line arguments are deprecated, but I will continue to support them for as long as possible to not break existing installations:
+
+* `BASESTATIONHOST`: You can specify the IP or hostname of a host/container running `readsb` or `dump1090`. See [mikenye/readsb](https://hub.docker.com/r/mikenye/readsb). If given, FlightAirMap will pull ADS-B data from the specified host/container. Without this, you'll need to set up your own sources via the install area. Default is unset. Optional.
+* `BASESTATIONPORT`: If your `readsb` or `dump1090` is running on a non-standard TCP port, you can change it here. Default `30003`. Optional.
+
+
+### NOT YET OVERHAULED
+
 
 `FAM_BRITISHAIRWAYSAPIKEY`: Sets the `$globalBritishAirwaysKey` variable in `require/settings.php`. Default is unset. Optional.
 
@@ -250,7 +342,7 @@ If you wish to use an external database:
 
 `MYSQLPASSWORD` Sets the mysql/mariadb password.
 
-### Data Volumes
+## Data Volumes
 
 The following table describes data volumes used by the container.  The mappings
 are set via the `-v` parameter.  Each mapping is specified with the following
@@ -263,7 +355,7 @@ format: `<VOL_NAME>:<CONTAINER_DIR>[:PERMISSIONS]`.
 
 It is suggested to make docker volumes for both of these areas, with the `docker volume create` command, and assign the volumes to the paths above.
 
-### Ports
+## Ports
 
 Here is the list of ports used by the container.  They can be mapped to the host
 via the `-p` parameter (one per port mapping).  Each mapping is defined in the

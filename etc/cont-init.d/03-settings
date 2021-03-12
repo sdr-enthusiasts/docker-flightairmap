@@ -62,7 +62,6 @@ search="\$globalInstalled = FALSE;"
 replace="\$globalInstalled = TRUE;"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-
 # Remove any encasing quotes in FAM_INSTALLPASSWORD
 if echo "${FAM_INSTALLPASSWORD}" | grep -P '^".*"$'; then
   FAM_INSTALLPASSWORD=${FAM_INSTALLPASSWORD:1:-1}
@@ -76,6 +75,16 @@ sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.
 search="\$globalName = '"
 replace="\$globalName = '${FAM_GLOBALSITENAME}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+search="\$globalURL = '"
+replace="\$globalURL = '${FAM_GLOBALURL}';"
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+if [[ -n "$FAM_GLOBALTIMEZONE" ]]; then
+  search="\$globalTimezone = '"
+  replace="\$globalTimezone = '${FAM_GLOBALTIMEZONE}';"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+fi
 
 search="\$globalLanguage = '"
 replace="\$globalLanguage = '${FAM_LANGUAGE}';"
@@ -117,6 +126,24 @@ search="\$globalOpenWeatherMapKey = '"
 replace="\$globalOpenWeatherMapKey = '${FAM_OPENWEATHERMAPKEY}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
+if [[ -n "$FAM_GLOBALMAPOFFLINE" ]]; then
+  search="\$globalMapOffline = '"
+  replace="\$globalMapOffline = 'TRUE';"
+else
+  search="\$globalMapOffline = '"
+  replace="\$globalMapOffline = 'FALSE';"
+fi
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+if [[ -n "$FAM_GLOBALOFFLINE" ]]; then
+  search="\$globalOffline = '"
+  replace="\$globalOffline = 'TRUE';"
+else
+  search="\$globalOffline = '"
+  replace="\$globalOffline = 'FALSE';"
+fi
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
 search="\$globalLatitudeMax = '"
 replace="\$globalLatitudeMax = '${FAM_LATITUDEMAX}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
@@ -149,9 +176,87 @@ search="\$globalSquawkCountry = '"
 replace="\$globalSquawkCountry = '${FAM_SQUAWK_COUNTRY}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
+if [[ -n "$FAM_GLOBALVM" ]]; then
+  search="\$globalVM = '"
+  replace="\$globalVM = 'TRUE';"
+else
+  search="\$globalVM = '"
+  replace="\$globalVM = 'FALSE';"
+fi
+sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
 search="\$globalSailaway = array('"
 replace="\$globalSailaway = array('email' => '${FAM_SAILAWAYEMAIL}','password' => '${FAM_SAILAWAYPASSWORD}','key' => '${FAM_SAILAWAYKEY}');"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+
+# Handle deprecated BASESTATIONHOST/BASESTATIONPORT
+if [[ -n "$BASESTATIONHOST" ]]; then
+
+  # If FAM_GLOBALSOURCES also set, then add a separator prior to adding BASESTATIONHOST...
+  if [[ -n "$FAM_GLOBALSOURCES" ]]; then
+      FAM_GLOBALSOURCES+=";"
+  fi
+  
+  # Add BASESTATIONHOST to FAM_GLOBALSOURCES
+  FAM_GLOBALSOURCES+="$BASESTATIONHOST,$BASESTATIONPORT,sbs,Deprecated BASESTATIONHOST $BASESTATIONHOST:$BASESTATIONPORT,false,false,$TZ"
+
+  # Display deprecation notice
+  >&2 echo "DEPRECATION NOTICE: The environment variable BASESTATIONHOST is deprecated. Please see the project README for guidance on changing to the FAM_GLOBALSOURCES environment variable."
+
+fi
+
+if [[ -n "$FAM_GLOBALSOURCES" ]]; then
+
+  # Start output variable
+  globalSources="array("
+  first=$(true)
+
+  # Split up the given data by ';' character
+  IFS=';' read -r -a FAM_GLOBALSOURCES_ARRAY <<< "$FAM_GLOBALSOURCES"
+  for FAM_GLOBALSOURCES_ELEMENT in "${FAM_GLOBALSOURCES_ARRAY[@]}"; do
+  
+    # For each entry...
+
+    # Pull info from the entry
+    host=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 1)
+    port=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 2)
+    format=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 3)
+    name=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 4)
+    sourcestats=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 5)
+    noarchive=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 6)
+    timezone=$(echo "$FAM_GLOBALSOURCES_ELEMENT" | cut -d ',' -f 7)
+
+    # Set callback if using a callback format
+    case "$format" in
+      hidnseek_callback )
+        callback="TRUE"
+        ;;
+      * )
+        callback="FALSE"
+        ;;
+    esac
+
+    # Write separator if required
+    if first; then
+      first=$(false)
+    else
+      globalSources+=","
+    fi
+
+    # Write out array
+    globalSources+="array('host' => '$host','port' => '$port','name' => '$name','format' => '$format','sourcestats' => ${sourcestats^^},'noarchive' => ${noarchive^^},'timezone' => '$timezone','callback' => ${callback^^})"
+
+  done
+
+  # Finish output variable
+  globalSources=");"
+
+  search="\$globalSources = array('"
+  replace="\$globalSources = $globalSources"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+
+fi
 
 search="\$globalBritishAirwaysKey = '"
 replace="\$globalBritishAirwaysKey = '${FAM_BRITISHAIRWAYSAPIKEY}';"

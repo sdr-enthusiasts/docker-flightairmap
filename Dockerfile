@@ -9,6 +9,7 @@ ENV BASESTATIONPORT="30003" \
     FAM_FLIGHTAWAREUSERNAME="" \
     FAM_GEOID_SOURCE="egm96-15" \
     FAM_GLOBALSITENAME="My FlightAirMap Site" \
+    FAM_GLOBALURL="" \
     FAM_GOOGLEKEY="" \
     FAM_GRAPHHOPPERAPIKEY="" \
     FAM_HEREAPPCODE="" \
@@ -55,7 +56,6 @@ RUN set -x && \
         jq \
         locales \
         procps \
-        socat \
         wget \
         pwgen \
         && \
