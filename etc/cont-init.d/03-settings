@@ -210,8 +210,8 @@ if [[ -n "$FAM_GLOBALSOURCES" ]]; then
 
   # Start output variable
   globalSources="array("
-  first=$(true)
 
+  first=1
   # Split up the given data by ';' character
   IFS=';' read -r -a FAM_GLOBALSOURCES_ARRAY <<< "$FAM_GLOBALSOURCES"
   for FAM_GLOBALSOURCES_ELEMENT in "${FAM_GLOBALSOURCES_ARRAY[@]}"; do
@@ -238,8 +238,8 @@ if [[ -n "$FAM_GLOBALSOURCES" ]]; then
     esac
 
     # Write separator if required
-    if first; then
-      first=$(false)
+    if [[ "$first" -eq 1 ]]; then
+      first=0
     else
       globalSources+=","
     fi
