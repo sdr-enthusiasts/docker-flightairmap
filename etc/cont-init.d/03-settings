@@ -209,7 +209,7 @@ fi
 if [[ -n "$FAM_GLOBALSOURCES" ]]; then
 
   # Start output variable
-  globalSources="array("
+  globalSources="\$globalSources = array("
 
   first=1
   # Split up the given data by ';' character
@@ -253,8 +253,7 @@ if [[ -n "$FAM_GLOBALSOURCES" ]]; then
   globalSources=");"
 
   search="\$globalSources = array('"
-  replace="\$globalSources = $globalSources"
-  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+  sed -i "/${search}/c\\${globalSources}" /var/www/flightairmap/htdocs/require/settings.php
 
 fi
 
