@@ -104,7 +104,7 @@ sed -i 's/access_log\ \/dev\/stdout\;/#&/' /etc/nginx/nginx.conf
 sed -i 's/error_log\ \/dev\/stdout/#&/' /etc/nginx/nginx.conf
 
 # Start temporary services
-/usr/sbin/php-fpm7.3 --daemonize
+/usr/sbin/php-fpm7.4 --daemonize
 /usr/sbin/nginx -g "daemon on; error_log /dev/null crit;"
 
 # re-enable nginx access log

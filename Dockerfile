@@ -57,52 +57,67 @@ RUN set -x && \
         procps \
         socat \
         wget \
-        pwgen \
-        && \
+        pwgen 
+
+RUN set -x && \
     useradd -d "/home/${WEBUSER}" -m -r -U "${WEBUSER}" && \
     echo "========== Setup locales ==========" && \
     echo "en_US ISO-8859-1" >> /etc/locale.gen && \
     echo "de_DE ISO-8859-1" >> /etc/locale.gen && \
     echo "es_ES ISO-8859-1" >> /etc/locale.gen && \
     echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
-    locale-gen && \
+    locale-gen 
+
+RUN set -x && \
     echo "========== Deploy php7 ==========" && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
-        php \
+        php7.4 \
         php-curl \
         php-fpm \
         php-gd \
-        php-gettext \
+        php-php-gettext \
         php-json \
         php-mysql \
         php-xml \
         php-zip \
         && \
-    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.3/fpm/php-fpm.conf && \
+    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.4/fpm/php-fpm.conf && \
     mkdir -p /run/php && \
-    rm -vrf /etc/php/7.3/fpm/pool.d/* && \
+    rm -vrf /etc/php/7.4/fpm/pool.d/*
+
+RUN set -x && \
     echo "========== Deploy nginx ==========" && \
     apt-get install -y --no-install-recommends \
         nginx-light && \
     rm -vf /etc/nginx/conf.d/default.conf && \
     rm -vrf /var/www/* && \
-    usermod -aG www-data "${WEBUSER}" && \
+    usermod -aG www-data "${WEBUSER}" 
+
+RUN set -x && \
     echo "========== Deploy MariaDB ==========" && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
         mariadb-server && \
     mkdir -p /run/mysqld && \
-    chown -vR mysql:mysql /run/mysqld && \
+    chown -vR mysql:mysql /run/mysqld
+
+RUN set -x && \
     echo "========== Deploy FlightAirMap ==========" && \
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
     pushd /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION || true && \
-    rm -rf /var/www/flightairmap/htdocs/.git && \
+    rm -rf /var/www/flightairmap/htdocs/.git
+
+RUN set -x && \
     echo "========== Deploy s6-overlay ==========" && \
     apt-get install --no-install-recommends -y gnupg && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
-    apt-get remove -y gnupg && \
+    apt-get remove -y gnupg
+
+RUN set -x && \
     echo "========== Clean up ==========" && \
     apt-get remove -y \
         file \
