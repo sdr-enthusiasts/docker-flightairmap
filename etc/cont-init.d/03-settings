@@ -5,7 +5,33 @@ NOCOLOR='\033[0m'
 LIGHTCYAN='\033[1;36m'
 
 echo ""
-echo -e "${LIGHTCYAN}Writing environment variables into require/settings.php...${NOCOLOR}"
+echo -e "${LIGHTCYAN}Writing settings into require/settings.php...${NOCOLOR}"
+
+# Write out /var/www/flightairmap/htdocs/require/settings.php
+{
+  echo "<?php"
+  echo "\$globalInstalled = TRUE;"
+  echo "\$globalName = '${FAM_GLOBALSITENAME}';"
+  echo "\$globalURL = '${FAM_GLOBALURL}';"
+  echo "\$logoURL = '/images/logo2.png';"
+
+  if [[ -n "$DEBUG_LOGGING" ]]; then
+    echo "\$globalDebug = TRUE;"
+  else
+    echo "\$globalDebug = FALSE;"
+  fi
+
+  echo "\$globalLanguage = '${FAM_LANGUAGE}';"
+  echo "\$globalMapProvider = '${FAM_MAPPROVIDER}';"
+  echo "\$globalMapboxId = '${FAM_MAPBOXID}';"
+  echo "\$globalMapboxToken = '${FAM_MAPBOXTOKEN}';"
+  echo "\$globalGoogleAPIKey = '${FAM_GOOGLEKEY}';"
+  echo "\$globalBingMapKey = '${FAM_BINGKEY}';"
+  echo "\$globalHereappID = '${FAM_HEREAPPID}';"
+
+
+} > /var/www/flightairmap/htdocs/require/settings.php
+
 
 # If no install password given, generate a random one. User can always pull it from settings.php.
 if [ -z "${FAM_INSTALLPASSWORD}" ]; then
@@ -72,13 +98,13 @@ search="\$globalInstallPassword = '"
 replace="\$globalInstallPassword = '${FAM_INSTALLPASSWORD}';"
 sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalName = '"
-replace="\$globalName = '${FAM_GLOBALSITENAME}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalName = '"
+# replace="\$globalName = '${FAM_GLOBALSITENAME}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalURL = '"
-replace="\$globalURL = '${FAM_GLOBALURL}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalURL = '"
+# replace="\$globalURL = '${FAM_GLOBALURL}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 if [[ -n "$FAM_GLOBALTIMEZONE" ]]; then
   search="\$globalTimezone = '"
@@ -86,33 +112,33 @@ if [[ -n "$FAM_GLOBALTIMEZONE" ]]; then
   sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 fi
 
-search="\$globalLanguage = '"
-replace="\$globalLanguage = '${FAM_LANGUAGE}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalLanguage = '"
+# replace="\$globalLanguage = '${FAM_LANGUAGE}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalMapProvider = '"
-replace="\$globalMapProvider = '${FAM_MAPPROVIDER}'; // Can be Mapbox, OpenStreetMap, MapQuest-OSM or MapQuest-Aerial"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalMapProvider = '"
+# replace="\$globalMapProvider = '${FAM_MAPPROVIDER}'; // Can be Mapbox, OpenStreetMap, MapQuest-OSM or MapQuest-Aerial"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalMapboxId = '"
-replace="\$globalMapboxId = '${FAM_MAPBOXID}'; // Mapbox id"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalMapboxId = '"
+# replace="\$globalMapboxId = '${FAM_MAPBOXID}'; // Mapbox id"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalMapboxToken = '"
-replace="\$globalMapboxToken = '${FAM_MAPBOXTOKEN}'; // Mapbox token"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalMapboxToken = '"
+# replace="\$globalMapboxToken = '${FAM_MAPBOXTOKEN}'; // Mapbox token"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalGoogleAPIKey = '"
-replace="\$globalGoogleAPIKey = '${FAM_GOOGLEKEY}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalGoogleAPIKey = '"
+# replace="\$globalGoogleAPIKey = '${FAM_GOOGLEKEY}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalBingMapKey = '"
-replace="\$globalBingMapKey = '${FAM_BINGKEY}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalBingMapKey = '"
+# replace="\$globalBingMapKey = '${FAM_BINGKEY}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
-search="\$globalHereappID = '"
-replace="\$globalHereappID = '${FAM_HEREAPPID}';"
-sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+# search="\$globalHereappID = '"
+# replace="\$globalHereappID = '${FAM_HEREAPPID}';"
+# sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 
 search="\$globalHereappCode = '"
 replace="\$globalHereappCode = '${FAM_HEREAPPCODE}';"

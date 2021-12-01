@@ -165,6 +165,7 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 | Environment Variable | Explanation |
 |----------------------|-------------|
 | `TZ` | Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional. |
+| `DEBUG_LOGGING` | Set to any value to enable debug logging. Default is unset. Optional. |
 
 ### Install Script Configuration
 
