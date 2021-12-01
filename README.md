@@ -273,6 +273,7 @@ ainer cannot be changed, but you are free to use any port on the host side.
 | Container Port | Purpose |
 |----------------|---------|
 | 80 (tcp)       | FlightAirMap application, web server |
+| 9999 (udp)     | [ACARS UDP Messages](https://github.com/valeriosouza/FlightAirMap#acars-only-messages-from-real-flights) |
 
 ## Getting Help
 
