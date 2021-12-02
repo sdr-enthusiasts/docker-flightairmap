@@ -70,7 +70,6 @@ RUN set -x && \
 
 RUN set -x && \
     echo "========== Deploy php7 ==========" && \
-    apt-get update -y && \
     apt-get install -y --no-install-recommends \
         php7.4 \
         php-curl \
@@ -96,7 +95,6 @@ RUN set -x && \
 
 RUN set -x && \
     echo "========== Deploy MariaDB ==========" && \
-    apt-get update -y && \
     apt-get install -y --no-install-recommends \
         mariadb-server && \
     mkdir -p /run/mysqld && \
