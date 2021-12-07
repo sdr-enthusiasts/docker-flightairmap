@@ -3,7 +3,7 @@
 
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
-    /usr/sbin/mysqld --console --log-error='' 2>&1 | awk '{print "[mariadb] " $0}'
+    /usr/sbin/mysqld --console 2>&1 | awk '{print "[mariadb] " $0}'
 else
     sleep 86400
 fi
