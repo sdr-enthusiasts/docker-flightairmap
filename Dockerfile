@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM debian:debian:buster-20210927-slim
 
 ENV BASESTATIONPORT="30003" \
     FAM_BINGKEY="" \
