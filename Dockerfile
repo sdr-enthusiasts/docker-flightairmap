@@ -101,7 +101,6 @@ RUN set -x && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION || true && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
-    popd && \
     echo "========== Deploy s6-overlay ==========" && \
     apt-get install --no-install-recommends -y gnupg && \
     wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
