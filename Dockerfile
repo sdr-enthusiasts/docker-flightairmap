@@ -46,72 +46,78 @@ ENV BASESTATIONPORT="30003" \
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN set -x && \
-    apt-get update -y && \
+    TEMP_PACKAGES=() && \
+    KEPT_PACKAGES=() && \
+    KEPT_PACKAGES+=("ca-certificates") && \
+    KEPT_PACKAGES+=("curl") && \
+    TEMP_PACKAGES+=("git") && \
+    KEPT_PACKAGES+=("html2text") && \
+    KEPT_PACKAGES+=("jq") && \
+    KEPT_PACKAGES+=("locales") && \
+    KEPT_PACKAGES+=("procps") && \
+    KEPT_PACKAGES+=("wget") && \
+    KEPT_PACKAGES+=("pwgen") && \
+    KEPT_PACKAGES+=("less") && \
+    # php
+    KEPT_PACKAGES+=("php") && \
+    KEPT_PACKAGES+=("php-curl") && \
+    KEPT_PACKAGES+=("php-fpm") && \
+    KEPT_PACKAGES+=("php-gd") && \
+    KEPT_PACKAGES+=("php-gettext") && \
+    KEPT_PACKAGES+=("php-json") && \
+    KEPT_PACKAGES+=("php-mysql") && \
+    KEPT_PACKAGES+=("php-xml") && \
+    KEPT_PACKAGES+=("php-zip") && \
+    # nginx
+    KEPT_PACKAGES+=("nginx-light") && \
+    # mariadb
+    KEPT_PACKAGES+=("mariadb-server") && \
+    # s6-overlay
+    TEMP_PACKAGES+=("file") && \
+    TEMP_PACKAGES+=("gnupg") && \
+    # install packages
+    apt-get update && \
     apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        file \
-        git \
-        html2text \
-        jq \
-        locales \
-        procps \
-        wget \
-        pwgen \
-        less \
+        ${KEPT_PACKAGES[@]} \
+        ${TEMP_PACKAGES[@]} \
         && \
-    # TODO: remove less before going live
+    # set up user
     useradd -d "/home/${WEBUSER}" -m -r -U "${WEBUSER}" && \
-    echo "========== Setup locales ==========" && \
+    # setup locales
     echo "en_US ISO-8859-1" >> /etc/locale.gen && \
     echo "de_DE ISO-8859-1" >> /etc/locale.gen && \
     echo "es_ES ISO-8859-1" >> /etc/locale.gen && \
     echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
     locale-gen && \
-    echo "========== Deploy php7 ==========" && \
-    apt-get install -y --no-install-recommends \
-        php \
-        php-curl \
-        php-fpm \
-        php-gd \
-        php-gettext \
-        php-json \
-        php-mysql \
-        php-xml \
-        php-zip \
-        && \
+    # php 7
     sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.3/fpm/php-fpm.conf && \
     mkdir -p /run/php && \
     rm -vrf /etc/php/7.3/fpm/pool.d/* && \
-    echo "========== Deploy nginx ==========" && \
-    apt-get install -y --no-install-recommends \
-        nginx-light && \
+    # nginx
     rm -vf /etc/nginx/conf.d/default.conf && \
     rm -vrf /var/www/* && \
     usermod -aG www-data "${WEBUSER}" && \
-    echo "========== Deploy MariaDB ==========" && \
-    apt-get install -y --no-install-recommends \
-        mariadb-server && \
+    # mariadb
     mkdir -p /run/mysqld && \
     chown -vR mysql:mysql /run/mysqld && \
-    echo "========== Deploy FlightAirMap ==========" && \
+    # flightairmap
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
     pushd /var/www/flightairmap/htdocs && \
     cp -v /var/www/flightairmap/htdocs/install/flightairmap-nginx-conf.include /etc/nginx/flightairmap-nginx-conf.include && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION || true && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
-    echo "========== Deploy s6-overlay ==========" && \
-    apt-get install --no-install-recommends -y gnupg && \
-    wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
-    apt-get remove -y gnupg && \
-    echo "========== Clean up ==========" && \
-    apt-get remove -y \
-        file \
-        git \
+    # s6 overlay
+    curl \
+        --location \
+        -o /tmp/deploy-s6-overlay.sh \
+        "https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh" \
         && \
+    bash /tmp/deploy-s6-overlay.sh && \
+    # clean up
+    apt-get remove -y ${TEMP_PACKAGES[@]} && \
     apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /src
+    rm -rf /src/* /tmp/* /var/lib/apt/lists/*
 
 # Copy config files
 COPY etc/ /etc/
