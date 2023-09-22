@@ -1,0 +1,5 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+
+/usr/sbin/php-fpm7.3 --nodaemonize 2>&1 | awk '{print "[php-fpm] " $0}'
+
