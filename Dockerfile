@@ -108,8 +108,6 @@ RUN set -x && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
 # Copy config files
-COPY etc/ /etc/
-
-ENTRYPOINT [ "/init" ]
+COPY rootfs/ /
 
 EXPOSE 80
