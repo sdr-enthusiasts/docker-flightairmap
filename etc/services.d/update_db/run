@@ -1,5 +1,0 @@
-#!/usr/bin/with-contenv sh
-# shellcheck shell=sh
-
-sleep 1h
-s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/update_db.php 2>&1 | awk '{print "[update_db] " $0}'

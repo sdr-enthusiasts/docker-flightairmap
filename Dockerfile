@@ -1,4 +1,4 @@
-FROM debian:stable-slim
+FROM ghcr.io/sdr-enthusiasts/docker-baseimage:base
 
 ENV BASESTATIONPORT="30003" \
     FAM_BINGKEY="" \
@@ -47,18 +47,18 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN set -x && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends \
-        ca-certificates \
-        curl \
-        file \
-        git \
-        html2text \
-        jq \
-        locales \
-        procps \
-        socat \
-        wget \
-        pwgen \
-        && \
+    ca-certificates \
+    curl \
+    file \
+    git \
+    html2text \
+    jq \
+    locales \
+    procps \
+    socat \
+    wget \
+    pwgen \
+    && \
     useradd -d "/home/${WEBUSER}" -m -r -U "${WEBUSER}" && \
     echo "========== Setup locales ==========" && \
     echo "en_US ISO-8859-1" >> /etc/locale.gen && \
@@ -66,30 +66,34 @@ RUN set -x && \
     echo "es_ES ISO-8859-1" >> /etc/locale.gen && \
     echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
     locale-gen && \
-    echo "========== Deploy php7 ==========" && \
+    echo "========== Deploy php ==========" && \
+    apt-get install software-properties-common ca-certificates lsb-release apt-transport-https -y --no-install-recommends && \
+    sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' && \
+    wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - && \
+    apt-get update -y && \
     apt-get install -y --no-install-recommends \
-        php \
-        php-curl \
-        php-fpm \
-        php-gd \
-        php-gettext \
-        php-json \
-        php-mysql \
-        php-xml \
-        php-zip \
-        && \
-    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.3/fpm/php-fpm.conf && \
+    php7.4 \
+    php7.4-curl \
+    php7.4-fpm \
+    php7.4-gd \
+    php7.4-gettext \
+    php7.4-json \
+    php7.4-mysql \
+    php7.4-xml \
+    php7.4-zip \
+    && \
+    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.4/fpm/php-fpm.conf && \
     mkdir -p /run/php && \
-    rm -vrf /etc/php/7.3/fpm/pool.d/* && \
+    #rm -vrf /etc/php/8.2/fpm/pool.d/* && \
     echo "========== Deploy nginx ==========" && \
     apt-get install -y --no-install-recommends \
-        nginx-light && \
+    nginx-light && \
     rm -vf /etc/nginx/conf.d/default.conf && \
     rm -vrf /var/www/* && \
     usermod -aG www-data "${WEBUSER}" && \
     echo "========== Deploy MariaDB ==========" && \
     apt-get install -y --no-install-recommends \
-        mariadb-server && \
+    mariadb-server && \
     mkdir -p /run/mysqld && \
     chown -vR mysql:mysql /run/mysqld && \
     echo "========== Deploy FlightAirMap ==========" && \
@@ -99,21 +103,15 @@ RUN set -x && \
     chown -vR "${WEBUSER}":"${WEBUSER}" /var/www/flightairmap && \
     git log | head -1 | tr -s " " "_" | tee /VERSION || true && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
-    echo "========== Deploy s6-overlay ==========" && \
-    apt-get install --no-install-recommends -y gnupg && \
-    wget -q -O - https://raw.githubusercontent.com/mikenye/deploy-s6-overlay/master/deploy-s6-overlay.sh | sh && \
-    apt-get remove -y gnupg && \
     echo "========== Clean up ==========" && \
     apt-get remove -y \
-        file \
-        git \
-        && \
+    file \
+    git \
+    && \
     apt-get autoremove -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
 # Copy config files
-COPY etc/ /etc/
-
-ENTRYPOINT [ "/init" ]
+COPY rootfs/ /
 
 EXPOSE 80
