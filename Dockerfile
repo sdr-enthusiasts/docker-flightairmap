@@ -67,20 +67,24 @@ RUN set -x && \
     echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
     locale-gen && \
     echo "========== Deploy php ==========" && \
+    apt install software-properties-common ca-certificates lsb-release apt-transport-https -y && \
+    sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' && \
+    wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - && \
+    apt update -y && \
     apt-get install -y --no-install-recommends \
-    php \
-    php-curl \
-    php-fpm \
-    php-gd \
-    php-gettext \
-    php-json \
-    php-mysql \
-    php-xml \
-    php-zip \
+    php7.4 \
+    php7.4-curl \
+    php7.4-fpm \
+    php7.4-gd \
+    php7.4-gettext \
+    php7.4-json \
+    php7.4-mysql \
+    php7.4-xml \
+    php7.4-zip \
     && \
-    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.3/fpm/php-fpm.conf && \
+    sed -i '/;error_log/c\error_log = /proc/self/fd/2' /etc/php/7.4/fpm/php-fpm.conf && \
     mkdir -p /run/php && \
-    rm -vrf /etc/php/7.3/fpm/pool.d/* && \
+    #rm -vrf /etc/php/8.2/fpm/pool.d/* && \
     echo "========== Deploy nginx ==========" && \
     apt-get install -y --no-install-recommends \
     nginx-light && \
