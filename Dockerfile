@@ -67,7 +67,7 @@ RUN set -x && \
     echo "fr_FR ISO-8859-1" >> /etc/locale.gen && \
     locale-gen && \
     echo "========== Deploy php ==========" && \
-    apt-get install software-properties-common ca-certificates lsb-release apt-transport-https -y && \
+    apt-get install software-properties-common ca-certificates lsb-release apt-transport-https -y --no-install-recommends && \
     sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' && \
     wget -qO - https://packages.sury.org/php/apt.gpg | apt-key add - && \
     apt-get update -y && \
