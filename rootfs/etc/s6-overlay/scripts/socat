@@ -2,9 +2,8 @@
 # shellcheck shell=sh
 
 if [ -z "${BASESTATIONHOST}" ]; then
-  sleep 3600  
+  sleep 3600
 else
-  # shellcheck disable=SC2153 
+  # shellcheck disable=SC2153
   socat -d -d TCP-LISTEN:30003,fork TCP:"${BASESTATIONHOST}":"${BASESTATIONPORT}"
 fi
-

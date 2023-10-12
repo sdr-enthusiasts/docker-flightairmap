@@ -48,8 +48,8 @@ docker run -d \
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
-* Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-* Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
+- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
+- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
 With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
@@ -60,14 +60,13 @@ With regards to settings - where one exists, you should use an environment varia
 An example `docker-compose.yml` file is as follows:
 
 ```yaml
-version: '2.0'
+version: "2.0"
 
 volumes:
   fam_db:
   fam_webapp:
 
 services:
-
   flightairmap:
     image: mikenye/flightairmap:latest
     tty: true
@@ -86,8 +85,8 @@ services:
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
-* Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-* Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
+- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
+- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
 With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
@@ -98,7 +97,7 @@ With regards to settings - where one exists, you should use an environment varia
 An example `docker-compose.yml` file is as follows:
 
 ```yaml
-version: '2.0'
+version: "2.0"
 
 volumes:
   fam_db:
@@ -108,7 +107,6 @@ networks:
   flightairmap:
 
 services:
-
   flightairmap_db:
     image: mariadb
     command: --default-authentication-plugin=mysql_native_password
@@ -151,15 +149,15 @@ services:
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
-* Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-* Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
+- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
+- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
 
 With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
 ### Environment Variables
 
 To customize some properties of the container, the following environment
-variables can be passed via the `-e` parameter (one for each variable).  Value
+variables can be passed via the `-e` parameter (one for each variable). Value
 of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
 `TZ`: Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional.
@@ -252,31 +250,31 @@ If you wish to use an external database:
 
 ### Data Volumes
 
-The following table describes data volumes used by the container.  The mappings
-are set via the `-v` parameter.  Each mapping is specified with the following
+The following table describes data volumes used by the container. The mappings
+are set via the `-v` parameter. Each mapping is specified with the following
 format: `<VOL_NAME>:<CONTAINER_DIR>[:PERMISSIONS]`.
 
-| Container path  | Permissions | Description |
-|-----------------|-------------|-------------|
-|`/var/lib/mysql`| rw | This is where the application database resides, if using the internal database. |
-|`/var/www/flightairmap`| rw | This is where the application itself resides. |
+| Container path          | Permissions | Description                                                                     |
+| ----------------------- | ----------- | ------------------------------------------------------------------------------- |
+| `/var/lib/mysql`        | rw          | This is where the application database resides, if using the internal database. |
+| `/var/www/flightairmap` | rw          | This is where the application itself resides.                                   |
 
 It is suggested to make docker volumes for both of these areas, with the `docker volume create` command, and assign the volumes to the paths above.
 
 ### Ports
 
-Here is the list of ports used by the container.  They can be mapped to the host
-via the `-p` parameter (one per port mapping).  Each mapping is defined in the
-following format: `<HOST_PORT>:<CONTAINER_PORT>`.  The port number inside the
+Here is the list of ports used by the container. They can be mapped to the host
+via the `-p` parameter (one per port mapping). Each mapping is defined in the
+following format: `<HOST_PORT>:<CONTAINER_PORT>`. The port number inside the
 ainer cannot be changed, but you are free to use any port on the host side.
 
-| Container Port | Purpose |
-|----------------|---------|
-| 80 (tcp)       | FlightAirMap application, web server |
+| Container Port | Purpose                                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------------------------- |
+| 80 (tcp)       | FlightAirMap application, web server                                                                     |
 | 9999 (udp)     | [ACARS UDP Messages](https://github.com/valeriosouza/FlightAirMap#acars-only-messages-from-real-flights) |
 
 ## Getting Help
 
-Having troubles with the container or have questions?  Please [create a new issue](https://github.com/mikenye/docker-flightairmap/issues).
+Having troubles with the container or have questions? Please [create a new issue](https://github.com/mikenye/docker-flightairmap/issues).
 
 I also have a [Discord channel](https://discord.gg/sTf9uYF), feel free to [join](https://discord.gg/sTf9uYF) and converse.

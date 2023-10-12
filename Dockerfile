@@ -44,6 +44,7 @@ ENV BASESTATIONPORT="30003" \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
+# hadolint ignore=DL3008,SC2086,SC2039,SC2068
 RUN set -x && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends \

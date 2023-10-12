@@ -2,4 +2,3 @@
 # shellcheck shell=sh
 
 /usr/sbin/php-fpm7.4 --nodaemonize 2>&1 | awk '{print "[php-fpm] " $0}'
-
