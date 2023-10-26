@@ -43,7 +43,7 @@ docker run -d \
     -e FAM_INSTALLPASSWORD="very_secure_password_12345" \
     -v flightairmap_db:/var/lib/mysql \
     -v flightairmap_webapp:/var/www/flightairmap \
-    mikenye/flightairmap
+    ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
 ```
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
@@ -68,7 +68,7 @@ volumes:
 
 services:
   flightairmap:
-    image: mikenye/flightairmap:latest
+    image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
     tty: true
     container_name: flightairmap
     restart: always
@@ -120,11 +120,9 @@ services:
       - MYSQL_PASSWORD=xi6Paig4yeitae3Pah9aew3j
     volumes:
       - fam_db:/var/lib/mysql
-    networks:
-      - flightairmap
 
   flightairmap:
-    image: famtest:latest
+    image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
     tty: true
     container_name: flightairmap
     restart: always
@@ -141,8 +139,6 @@ services:
       - MYSQLROOTPASSWORD=shai5Eisah7phe0aic5foote
     volumes:
       - fam_webapp:/var/www/flightairmap
-    networks:
-      - flightairmap
     depends_on:
       - flightairmap_db
 ```
