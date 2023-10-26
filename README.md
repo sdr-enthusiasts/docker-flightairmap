@@ -232,6 +232,8 @@ of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
 `FAM_GEOID_SOURCE` Sets the `$globalGeoidSource` variable in `require/settings.php`. Default `egm96-15`. Optional.
 
+`FAM_ENABLE_ACARS` Sets the `$globalACARS` variable in `require/settings.php`. Default `false`. Optional.
+
 If you wish to use an external database:
 
 `MYSQLHOSTNAME` Sets the hostname of the mysql/mariadb server.
