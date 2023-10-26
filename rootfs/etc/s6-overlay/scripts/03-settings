@@ -1,6 +1,8 @@
 #!/command/with-contenv /bin/bash
 #shellcheck shell=bash
 
+source /scripts/common
+
 NOCOLOR='\033[0m'
 LIGHTCYAN='\033[1;36m'
 
