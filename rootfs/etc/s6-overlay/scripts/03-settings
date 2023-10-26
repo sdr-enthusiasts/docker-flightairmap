@@ -203,4 +203,10 @@ if chk_enabled "${FAM_ENABLE_ACARS}"; then
   sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
 fi
 
+if chk_enabled "${FAM_GLOBAL_URL}"; then
+  search="\$globalURL = '"
+  replace="\$globalURL = '${FAM_GLOBAL_URL}';"
+  sed -i "/${search}/c\\${replace}" /var/www/flightairmap/htdocs/require/settings.php
+fi
+
 echo ""
