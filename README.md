@@ -118,7 +118,7 @@ services:
       - MYSQL_ROOT_PASSWORD=shai5Eisah7phe0aic5foote
       - MYSQL_DATABASE=flightairmap
       - MYSQL_USER=flightairmap
-      - TZ=Europe/London
+      - TZ=${FEEDER_TZ}
       - MYSQL_PASSWORD=xi6Paig4yeitae3Pah9aew3j
     volumes:
       - fam_db:/config
@@ -131,7 +131,7 @@ services:
     ports:
       - 8080:80
     environment:
-      - TZ=Australia/Perth
+      - TZ=${FEEDER_TZ}
       - BASESTATIONHOST=readsb
       - FAM_INSTALLPASSWORD="very_secure_password_12345"
       - MYSQLHOSTNAME=flightairmap_db
