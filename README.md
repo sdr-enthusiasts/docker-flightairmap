@@ -26,25 +26,7 @@ This container is designed to work in conjunction with a Mode-S / BEAST provider
 
 ---
 
-## Quick Start with `docker run`
-
-**NOTE**: The Docker command provided in this quick start is given as an example and parameters should be adjusted to suit your needs.
-
-Launch the FlightAwareMap docker container with the following commands:
-
-```shell
-docker volume create flightairmap_db
-docker volume create flightairmap_webapp
-docker run -d \
-    --name=flightairmap \
-    -p 8080:80 \
-    -e BASESTATIONHOST=readsb \
-    -e TZ=Australia/Perth \
-    -e FAM_INSTALLPASSWORD="very_secure_password_12345" \
-    -v flightairmap_db:/var/lib/mysql \
-    -v flightairmap_webapp:/var/www/flightairmap \
-    ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
-```
+## Container notes
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
@@ -75,20 +57,13 @@ services:
     ports:
       - 8080:80
     environment:
-      - TZ=Australia/Perth
+      - TZ=${FEEDER_TZ}
       - BASESTATIONHOST=readsb
       - FAM_INSTALLPASSWORD="very_secure_password_12345"
     volumes:
       - fam_db:/var/lib/mysql
       - fam_webapp:/var/www/flightairmap
 ```
-
-On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
-
-- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
-
-With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
 ## Quick Start with `docker-compose` using external database
 
@@ -144,13 +119,6 @@ services:
     depends_on:
       - flightairmap_db
 ```
-
-On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
-
-- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
-
-With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via with `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
 
 ### Environment Variables
 
