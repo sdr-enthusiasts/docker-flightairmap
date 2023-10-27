@@ -1,6 +1,7 @@
 #!/command/with-contenv /bin/bash
 #shellcheck shell=bash
 
+#shellcheck disable=SC1091
 source /scripts/common
 
 NOCOLOR='\033[0m'
