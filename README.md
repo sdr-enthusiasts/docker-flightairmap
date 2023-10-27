@@ -108,18 +108,20 @@ networks:
 
 services:
   flightairmap_db:
-    image: mariadb
-    command: --default-authentication-plugin=mysql_native_password
+    image: lscr.io/linuxserver/mariadb:latest
     tty: true
     container_name: flightairmap_db
     restart: always
     environment:
+      - PUID=0
+      - PGID=0
       - MYSQL_ROOT_PASSWORD=shai5Eisah7phe0aic5foote
       - MYSQL_DATABASE=flightairmap
       - MYSQL_USER=flightairmap
+      - TZ=Europe/London
       - MYSQL_PASSWORD=xi6Paig4yeitae3Pah9aew3j
     volumes:
-      - fam_db:/var/lib/mysql
+      - fam_db:/config
 
   flightairmap:
     image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
