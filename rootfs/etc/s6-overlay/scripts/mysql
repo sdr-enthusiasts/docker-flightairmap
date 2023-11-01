@@ -1,9 +1,14 @@
-#!/command/with-contenv sh
-# shellcheck shell=sh
+#!/command/with-contenv bash
+# shellcheck shell=bash
+
+# shellcheck disable=SC1091,SC2086,SC2016
+source /scripts/common
+
+s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
 
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
-    /usr/sbin/mysqld --console --log-error='' 2>&1 | awk '{print "[mariadb] " $0}'
+    "${s6wrap[@]}" /usr/sbin/mysqld --console --log-error='' --user=root
 else
-    sleep 3600
+    "${s6wrap[@]}" sleep 3600
 fi

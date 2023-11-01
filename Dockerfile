@@ -40,7 +40,8 @@ ENV BASESTATIONPORT="30003" \
     MYSQLPORT=3306 \
     S6_BEHAVIOUR_IF_STAGE2_FAILS=2 \
     TZ=UTC \
-    WEBUSER=flightairmap
+    WEBUSER=flightairmap \
+    QUIET_FAM=true
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
