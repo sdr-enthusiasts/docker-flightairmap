@@ -126,97 +126,58 @@ To customize some properties of the container, the following environment
 variables can be passed via the `-e` parameter (one for each variable). Value
 of this parameter has the format `<VARIABLE_NAME>=<VALUE>`.
 
-`TZ`: Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones). Default `UTC`. Optional.
-
-`FAM_INSTALLPASSWORD`: Sets the `$globalInstallPassword` variable in `require/settings.php`. The password to access the install area. If not given, a randomly password will be generated and used. To obtain the generated password, you can issue the command `docker exec flightairmap cat /var/www/flightairmap/htdocs/require/settings.php | grep globalInstallPassword`. Optional.
-
-`BASESTATIONHOST`: You can specify the IP or hostname of a host/container running `readsb` or `dump1090`. See [mikenye/readsb](https://hub.docker.com/r/mikenye/readsb). If given, FlightAirMap will pull ADS-B data from the specified host/container. Without this, you'll need to set up your own sources via the install area. Default is unset. Optional.
-
-`BASESTATIONPORT`: If your `readsb` or `dump1090` is running on a non-standard TCP port, you can change it here. Default `30003`. Optional.
-
-`FAM_GLOBALSITENAME`: Sets the `$globalName` variable in `require/settings.php`.The name of your site. Default `My FlightAirMap Site`. Optional.
-
-`FAM_LANGUAGE`: Sets the `$globalLanguage` variable in `require/settings.php`. Interface language. Can be set to `EN`, `DE` or `FR`. Default `EN`. Optional.
-
-`FAM_MAPPROVIDER`: Sets the `$globalMapProvider` variable in `require/settings.php`. Can be `Mapbox`, `OpenStreetMap`, `MapQuest-OSM` or `MapQuest-Aerial`. Default `OpenStreetMap`. Optional.
-
-`FAM_MAPBOXID`: Sets the `$globalMapboxId` variable in `require/settings.php`. Default: "examples.map-i86nkdio" Optional.
-
-`FAM_MAPBOXTOKEN`: Sets the `$globalMapboxToken` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_GOOGLEKEY`: Sets the `$globalGoogleAPIKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_BINGKEY`: Sets the `$globalBingMapKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_MAPQUESTKEY`: Sets the `$globalMapQuestKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_HEREAPPID`: Sets the `$globalHereappID` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_HEREAPPCODE`: Sets the `$globalHereappCode` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_OPENWEATHERMAPKEY`: Sets the `$globalOpenWeatherMapKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_LATITUDEMAX`: Sets the `$globalLatitudeMax` variable in `require/settings.php`. Default is `46.92`. Optional.
-
-`FAM_LATITUDEMIN`: Sets the `$globalLatitudeMin` variable in `require/settings.php`. Default is `42.14`. Optional.
-
-`FAM_LONGITUDEMAX`: Sets the `$globalLongitudeMax` variable in `require/settings.php`. Default is `6.2`. Optional.
-
-`FAM_LONGITUDEMIN`: Sets the `$globalLongitudeMin` variable in `require/settings.php`. Default is `1.0`. Optional.
-
-`FAM_LATITUDECENTER`: Sets the `$globalCenterLatitude` variable in `require/settings.php`. Default is `46.38`. Optional.
-
-`FAM_LONGITUDECENTER`: Sets the `$globalCenterLongitude` variable in `require/settings.php`. Default is `5.29`. Optional.
-
-`FAM_LIVEZOOM`: Sets the `$globalLiveZoom` variable in `require/settings.php`. Default is `9`. Optional.
-
-`FAM_SQUAWK_COUNTRY`: Sets the `$globalSquawkCountry` variable in `require/settings.php`. Can be set to `UK`, `NZ`, `US`, `AU`, `NL`, `FR` or `TR`. Default `EU`. Optional.
-
-`FAM_SAILAWAYEMAIL`: Sets the `$globalSailaway` array's `email` value in `require/settings.php`. Default is unset. Optional.
-
-`FAM_SAILAWAYPASSWORD`: Sets the `$globalSailaway` array's `password` value in `require/settings.php`. Default is unset. Optional.
-
-`FAM_SAILAWAYKEY`: Sets the `$globalSailaway` array's `key` value in `require/settings.php`. Default is unset. Optional.
-
-`FAM_BRITISHAIRWAYSAPIKEY`: Sets the `$globalBritishAirwaysKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_CORSPROXY`: Sets the `$globalCORSproxy` variable in `require/settings.php`. Default `https://galvanize-cors-proxy.herokuapp.com/`. Optional.
-
-`FAM_LUFTHANSAKEY`: Sets the `$globalLufthansaKey` array's `key` value in `require/settings.php`. Default is unset. Optional.
-
-`FAM_LUFTHANSASECRET`: Sets the `$globalLufthansaKey` array's `secret` value in `require/settings.php`. Default is unset. Optional.
-
-`FAM_FLIGHTAWAREUSERNAME`: Sets the `$globalFlightAwareUsername` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_FLIGHTAWAREPASSWORD`: Sets the `$globalFlightAwarePassword` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_MAPMATCHINGSOURCE`: Sets the `$globalMapMatchingSource` variable in `require/settings.php`. Default is `fam`. Optional.
-
-`FAM_GRAPHHOPPERAPIKEY`: Sets the `$globalGraphHopperKey` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_NOTAMSOURCE`: Sets the `$globalNOTAMSource` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_METARSOURCE`: Sets the `$globalMETARurl` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_BITLYACCESSTOKENAPI`: Sets the `$globalBitlyAccessToken` variable in `require/settings.php`. Default is unset. Optional.
-
-`FAM_GEOID_SOURCE` Sets the `$globalGeoidSource` variable in `require/settings.php`. Default `egm96-15`. Optional.
-
-`FAM_ENABLE_ACARS` Sets the `$globalACARS` variable in `require/settings.php`. Default `false`. Optional.
-
-`FAM_GLOBAL_URL` Sets the `$globalURL` variable in `require/settings.php`. Default is unset. Sets the URL pathing for asset requests. Useful for running FAM behind a proxy. No trailing `/`. Optional.
+| Name                       | Description                                                                                                                                                                                                                                                                                                                                                 | Default                                        | Required  |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | --------- |
+| `TZ`                       | Your local timezone in "TZ database name" format [List-of-tz-database-time-zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).                                                                                                                                                                                                            | `UTC`                                          | Optional. |
+| `FAM_INSTALLPASSWORD`      | Sets the `$globalInstallPassword` variable in `require/settings.php`. The password to access the install area. If not given, a randomly password will be generated and used. To obtain the generated password, you can issue the command `docker exec flightairmap cat /var/www/flightairmap/htdocs/require/settings.php \| grep globalInstallPassword`.    | `unset`                                        | Optional  |
+| `BASESTATIONHOST`          | You can specify the IP or hostname of a host/container running `readsb` or `dump1090`. See [sdre-enthusiasts/docker-readsb-protobuf](https://github.com/sdr-enthusiasts/docker-readsb-protobuf/). If given, FlightAirMap will pull ADS-B data from the specified host/container. Without this, you'll need to set up your own sources via the install area. | `unset`                                        | Optional  |
+| `BASESTATIONPORT`          | If your `readsb` or `dump1090` is running on a non-standard TCP port, you can change it here.                                                                                                                                                                                                                                                               | `30003`                                        | Optional  |
+| `FAM_GLOBALSITENAME`       | Sets the `$globalName` variable in `require/settings.php`.The name of your site                                                                                                                                                                                                                                                                             | `My FlightAirMap Site`                         | Optional  |
+| `FAM_LANGUAGE`             | Sets the `$globalLanguage` variable in `require/settings.php`. Interface language. Can be set to `EN`, `DE` or `FR`.                                                                                                                                                                                                                                        | `EN`                                           | Optional  |
+| `FAM_MAPPROVIDER`          | Sets the `$globalMapProvider` variable in `require/settings.php`. Can be `Mapbox`, `OpenStreetMap`, `MapQuest-OSM` or `MapQuest-Aerial`                                                                                                                                                                                                                     | `OpenStreetMap`                                | Optional  |
+| `FAM_MAPBOXID`             | Sets the `$globalMapboxId` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                              | `examples.map-i86nkdio`                        | Optional  |
+| `FAM_MAPBOXTOKEN`          | Sets the `$globalMapboxToken` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                          | `unset`                                        | Optional  |
+| `FAM_GOOGLEKEY`            | Sets the `$globalGoogleAPIKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                         | `unset`                                        | Optional  |
+| `FAM_BINGKEY`              | Sets the `$globalBingMapKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                           | `unset`                                        | Optional  |
+| `FAM_MAPQUESTKEY`          | Sets the `$globalMapQuestKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                          | `unset`                                        | Optional  |
+| `FAM_HEREAPPID`            | Sets the `$globalHereappID` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                            | `unset`                                        | Optional  |
+| `FAM_HEREAPPCODE`          | Sets the `$globalHereappCode` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                          | `unset`                                        | Optional  |
+| `FAM_OPENWEATHERMAPKEY`    | Sets the `$globalOpenWeatherMapKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                    | `unset`                                        | Optional  |
+| `FAM_LATITUDEMAX`          | Sets the `$globalLatitudeMax` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                           | 46.92`.                                        | Optional  |
+| `FAM_LATITUDEMIN`          | Sets the `$globalLatitudeMin` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                           | 42.14`.                                        | Optional  |
+| `FAM_LONGITUDEMAX`         | Sets the `$globalLongitudeMax` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                          | `6.2`.                                         | Optional  |
+| `FAM_LONGITUDEMIN`         | Sets the `$globalLongitudeMin` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                          | `1.0`.                                         | Optional  |
+| `FAM_LATITUDECENTER`       | Sets the `$globalCenterLatitude` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                        | `46.38`.                                       | Optional  |
+| `FAM_LONGITUDECENTER`      | Sets the `$globalCenterLongitude` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                       | `5.29`.                                        | Optional  |
+| `FAM_LIVEZOOM`             | Sets the `$globalLiveZoom` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                              | `9`.                                           | Optional  |
+| `FAM_SQUAWK_COUNTRY`       | Sets the `$globalSquawkCountry` variable in `require/settings.php`. Can be set to `UK`, `NZ`, `US`, `AU`, `NL`, `FR` or `TR`.                                                                                                                                                                                                                               | `EU`.                                          | Optional  |
+| `FAM_SAILAWAYEMAIL`        | Sets the `$globalSailaway` array's `email` value in `require/settings.php` .                                                                                                                                                                                                                                                                                | `unset`                                        | Optional  |
+| `FAM_SAILAWAYPASSWORD`     | Sets the `$globalSailaway` array's `password` value in `require/settings.php` .                                                                                                                                                                                                                                                                             | `unset`                                        | Optional  |
+| `FAM_SAILAWAYKEY`          | Sets the `$globalSailaway` array's `key` value in `require/settings.php` .                                                                                                                                                                                                                                                                                  | `unset`                                        | Optional  |
+| `FAM_BRITISHAIRWAYSAPIKEY` | Sets the `$globalBritishAirwaysKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                    | `unset`                                        | Optional  |
+| `FAM_CORSPROXY`            | Sets the `$globalCORSproxy` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                             | `https://galvanize-cors-proxy.herokuapp.com/`. | Optional  |
+| `FAM_LUFTHANSAKEY`         | Sets the `$globalLufthansaKey` array's `key` value in `require/settings.php` .                                                                                                                                                                                                                                                                              | `unset`                                        | Optional  |
+| `FAM_LUFTHANSASECRET`      | Sets the `$globalLufthansaKey` array's `secret` value in `require/settings.php` .                                                                                                                                                                                                                                                                           | `unset`                                        | Optional  |
+| `FAM_FLIGHTAWAREUSERNAME`  | Sets the `$globalFlightAwareUsername` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                  | `unset`                                        | Optional  |
+| `FAM_FLIGHTAWAREPASSWORD`  | Sets the `$globalFlightAwarePassword` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                  | `unset`                                        | Optional  |
+| `FAM_MAPMATCHINGSOURCE`    | Sets the `$globalMapMatchingSource` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                     | `fam`.                                         | Optional  |
+| `FAM_GRAPHHOPPERAPIKEY`    | Sets the `$globalGraphHopperKey` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                       | `unset`                                        | Optional  |
+| `FAM_NOTAMSOURCE`          | Sets the `$globalNOTAMSource` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                          | `unset`                                        | Optional  |
+| `FAM_METARSOURCE`          | Sets the `$globalMETARurl` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                             | `unset`                                        | Optional  |
+| `FAM_BITLYACCESSTOKENAPI`  | Sets the `$globalBitlyAccessToken` variable in `require/settings.php` .                                                                                                                                                                                                                                                                                     | `unset`                                        | Optional  |
+| `FAM_GEOID_SOURCE`         | Sets the `$globalGeoidSource` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                           | egm96-15`.                                     | Optional  |
+| `FAM_ENABLE_ACARS`         | Sets the `$globalACARS` variable in `require/settings.php`.                                                                                                                                                                                                                                                                                                 | `false`                                        | Optional  |
+| `FAM_GLOBAL_URL`           | Sets the `$globalURL` variable in `require/settings.php`. Default is unset. Sets the URL pathing for asset requests. Useful for running FAM behind a proxy. No trailing `/`.                                                                                                                                                                                | `unset`                                        | Optional  |
 
 If you wish to use an external database:
 
-`MYSQLHOSTNAME` Sets the hostname of the mysql/mariadb server.
-
-`MYSQLPORT` Sets the port used to communicate to mysql/mariadb. Default `3306`. Optional.
-
-`MYSQLDATABASE` Sets the mysql/mariadb database name. Default `flightairmap`. Optional.
-
-`MYSQLUSERNAME` Sets the mysql/mariadb user name. Default `flightairmap`. Optional.
-
-`MYSQLPASSWORD` Sets the mysql/mariadb password.
+| Name            | Description                                         | Default         | Required                                                 |
+| --------------- | --------------------------------------------------- | --------------- | -------------------------------------------------------- |
+| `MYSQLHOSTNAME` | Sets the hostname of the mysql/mariadb server.      | `unset`         | Required for external databases, else please leave unset |
+| `MYSQLPORT`     | Sets the port used to communicate to mysql/mariadb. | `3306`          | Required for external databases, else please leave unset |
+| `MYSQLDATABASE` | Sets the mysql/mariadb database name.               | `flightairmap`. | Required for external databases, else please leave unset |
+| `MYSQLUSERNAME` | Sets the mysql/mariadb user name.                   | `flightairmap`. | Required for external databases, else please leave unset |
+| `MYSQLPASSWORD` | Sets the mysql/mariadb password.                    | `unset`         | Required for external databases, else please leave unset |
 
 ### Data Volumes
 
