@@ -35,7 +35,7 @@ fi
 if [ -z "${MYSQLHOSTNAME}" ]; then
   # Check if the flightairmap database exists
   # Start mysqld without permissions
-  /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup &
+  /usr/sbin/mysqld --skip-networking --console --log-error='' --skip-grant-tables --silent-startup --user=root &
   # Wait for mysqld to init
   while :
   do
@@ -84,7 +84,7 @@ if [ -z "${MYSQLHOSTNAME}" ]; then
   MYSQLPASSWORD="$(pwgen -cns 30 999 | tail -1)"
 
   mysqladmin shutdown
-  /usr/sbin/mysqld --console --log-error='' --silent-startup &
+  /usr/sbin/mysqld --console --log-error='' --silent-startup --user=root &
   # Wait for mysqld to init
   echo "Waiting for database..."
   while :

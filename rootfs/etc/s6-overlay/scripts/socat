@@ -1,9 +1,11 @@
 #!/command/with-contenv sh
 # shellcheck shell=sh
 
+s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
+
 if [ -z "${BASESTATIONHOST}" ]; then
-  sleep 3600
+  "${s6wrap[@]}" sleep 3600
 else
   # shellcheck disable=SC2153
-  socat -d -d TCP-LISTEN:30003,fork TCP:"${BASESTATIONHOST}":"${BASESTATIONPORT}"
+  "${s6wrap[@]}" socat -d -d TCP-LISTEN:30003,fork TCP:"${BASESTATIONHOST}":"${BASESTATIONPORT}"
 fi

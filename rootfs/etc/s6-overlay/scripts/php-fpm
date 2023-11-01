@@ -1,4 +1,5 @@
 #!/command/with-contenv sh
 # shellcheck shell=sh
 
-/usr/sbin/php-fpm7.4 --nodaemonize 2>&1 | awk '{print "[php-fpm] " $0}'
+s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
+"${s6wrap[@]}" /usr/sbin/php-fpm7.4 --nodaemonize 2>&1 | awk '{print "[php-fpm] " $0}'

@@ -1,4 +1,5 @@
 #!/command/with-contenv sh
 # shellcheck shell=sh
 
-s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/daemon-spotter.php 2>&1 | awk '{print "[daemon-spotter] " $0}'
+s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
+"${s6wrap[@]}" s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/daemon-spotter.php 2>&1 | awk '{print "[daemon-spotter] " $0}'
