@@ -5,7 +5,7 @@ s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
 
 # if using local database
 if [ -z "${MYSQLHOSTNAME}" ]; then
-    "${s6wrap[@]}" /usr/sbin/mysqld --console --log-error='' --user=root 2>&1 | awk '{print "[mariadb] " $0}'
+    "${s6wrap[@]}" /usr/sbin/mysqld --console --log-error='' --user=root
 else
     "${s6wrap[@]}" sleep 3600
 fi

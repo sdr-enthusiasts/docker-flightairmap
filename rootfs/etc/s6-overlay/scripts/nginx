@@ -2,4 +2,4 @@
 # shellcheck shell=sh
 
 s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
-"${s6wrap[@]}" /usr/sbin/nginx 2>&1 | awk '{print "[nginx] " $0}'
+"${s6wrap[@]}" /usr/sbin/nginx
