@@ -1,0 +1,13 @@
+#!/command/with-contenv bash
+# shellcheck shell=bash
+
+# shellcheck disable=SC1091,SC2086,SC2016
+source /scripts/common
+
+# patch FAM
+
+sed -i '697s/\$matches as \$m/\$matches \?\? \[\] as \$m/' /var/www/flightairmap/htdocs/require/libs/simple_html_dom.php
+sed -i '1385s/w-/w\\-/' /var/www/flightairmap/htdocs/require/libs/simple_html_dom.php
+sed -i '689s/w-/w\\-/g' /var/www/flightairmap/htdocs/require/libs/simple_html_dom.php
+sed -i '4084s/\$owner_info\['\''owner'\''] != '\'''\''/isset\(\$owner_info\['\''owner'\''\]\) \&\& !empty\(\$owner_info\['\''owner'\''\]\)/' /var/www/flightairmap/htdocs/require/class.Spotter.php
+sed -i '2199s/count(\$row) > 0/isset\(\$row\['\''icao'\''\]\) \&\& !empty\(\$row\['\''icao'\''\]\)/' /var/www/flightairmap/htdocs/require/class.Spotter.php
