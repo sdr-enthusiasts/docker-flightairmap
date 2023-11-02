@@ -25,6 +25,16 @@ if chk_enabled $QUIET_FAM; then
             stdbuf -oL awk '! /Schedule info/' | \
             stdbuf -oL awk '! /Change departure airport/' | \
             stdbuf -oL awk '! /Change arrival airport/' | \
+            stdbuf -oL awk '! /Update arrival/' | \
+            stdbuf -oL awk '! /Update departure/' | \
+            stdbuf -oL awk '! /Delete old values/' | \
+            stdbuf -oL awk '! /find arrival airport/' | \
+            stdbuf -oL awk '! /^\n/' | \
+            stdbuf -oL awk '! /^ \n/' | \
+            stdbuf -oL awk '! /^$/' | \
+            stdbuf -oL awk '! /Check Country/' | \
+            stdbuf -oL awk '! /Too much distance in short time/' | \
+            stdbuf -oL awk '! /Time :/' | \
             stdbuf -oL awk '{print $0}'
 else
 # shellcheck disable=SC1091,SC2086,SC2016
