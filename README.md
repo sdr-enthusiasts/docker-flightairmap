@@ -39,6 +39,8 @@ With regards to settings - where one exists, you should use an environment varia
 
 **NOTE**: The Docker command provided in this quick start is given as an example and parameters should be adjusted to suit your needs.
 
+**_NOTE:_**: This provided configuration doesn't work. You have to use the external database configuration. This is a known issue, and the config is being left in the README for reference and consideration as we decide what to do about this.
+
 An example `docker-compose.yml` file is as follows:
 
 ```yaml

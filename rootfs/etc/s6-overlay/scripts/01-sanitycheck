@@ -16,6 +16,8 @@ fi
 # Make sure database hostname/password have been set OK
 if [ -z "${MYSQLHOSTNAME}" ]; then
   echo -e "${LIGHTBLUE}INFO: MYSQLHOSTNAME not set, using local database${NOCOLOR}"
+  echo -e "${LIGHTRED}ERROR: local data base is not supported. Please set up an external mariadb instance for use.${NOCOLOR}"
+  EXITCODE=1
 else
   if [ -z "${MYSQLPASSWORD}" ]; then
     echo -e "${LIGHTRED}ERROR: MYSQLHOSTNAME set, however MYSQLPASSWORD not set${NOCOLOR}"
