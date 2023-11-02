@@ -22,6 +22,9 @@ if chk_enabled $QUIET_FAM; then
             stdbuf -oL awk '! /Calculated Speed/' | \
             stdbuf -oL awk '! /Calculated Altitude/' | \
             stdbuf -oL awk '! /Calculated Heading/' | \
+            stdbuf -oL awk '! /Schedule info/' | \
+            stdbuf -oL awk '! /Change departure airport/' | \
+            stdbuf -oL awk '! /Change arrival airport/' | \
             stdbuf -oL awk '{print $0}'
 else
 # shellcheck disable=SC1091,SC2086,SC2016
