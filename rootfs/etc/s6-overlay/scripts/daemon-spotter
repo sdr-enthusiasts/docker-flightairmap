@@ -35,6 +35,8 @@ if chk_enabled $QUIET_FAM; then
             stdbuf -oL awk '! /Check Country/' | \
             stdbuf -oL awk '! /Too much distance in short time/' | \
             stdbuf -oL awk '! /Time :/' | \
+            stdbuf -oL awk '! /No Airport near/' | \
+            stdbuf -oL sed  -e 's/\n\n/\n/g' | \
             stdbuf -oL awk '{print $0}'
 else
 # shellcheck disable=SC1091,SC2086,SC2016

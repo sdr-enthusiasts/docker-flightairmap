@@ -5,4 +5,12 @@
 source /scripts/common
 
 s6wrap=(s6wrap --quiet --prepend="$(basename "$0")" --timestamps --args)
-"${s6wrap[@]}" s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/daemon-acars.php
+if chk_enabled $QUIET_FAM; then
+    # shut up the logging of acars messages if it's enabled and it's a normal looking message
+    "${s6wrap[@]}" s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/daemon-acars.php 2>&1 | \
+        stdbuf -oL awk '! /freq/' | \
+        stdbuf -oL sed  -e 's/\n\n/\n/g' | \
+        stdbuf -oL awk '{print $0}'
+else
+    "${s6wrap[@]}" s6-setuidgid "$WEBUSER" php /var/www/flightairmap/htdocs/scripts/daemon-acars.php
+fi
