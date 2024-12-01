@@ -53,7 +53,6 @@ volumes:
 services:
   flightairmap:
     image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
-    tty: true
     container_name: flightairmap
     restart: always
     ports:
@@ -86,7 +85,6 @@ networks:
 services:
   flightairmap_db:
     image: lscr.io/linuxserver/mariadb:latest
-    tty: true
     container_name: flightairmap_db
     restart: always
     environment:
@@ -102,7 +100,6 @@ services:
 
   flightairmap:
     image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
-    tty: true
     container_name: flightairmap
     restart: always
     ports:
