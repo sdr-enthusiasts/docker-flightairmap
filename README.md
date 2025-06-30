@@ -2,7 +2,7 @@
 
 Docker container for [FlightAirMap](http://flightairmap.com).
 
-Builds and runs on x86_64, arm32v6, arm32v7 and arm64v8 (and possibly other architectures).
+Builds and runs on x86_64, arm32v7 and arm64v8
 
 ---
 
@@ -22,7 +22,8 @@ It can use as source ADS-B extended with format tsv, SBS (port 30003), raw (alph
 
 It also support glidernet APRS source.
 
-This container is designed to work in conjunction with a Mode-S / BEAST provider. Check out [mikenye/readsb](https://hub.docker.com/repository/docker/mikenye/readsb) or [mikenye/piaware](https://hub.docker.com/repository/docker/mikenye/piaware) for this, or BYO.
+This container is designed to work in conjunction with a Mode-S / BEAST provider. Check out https://sdr-enthusiasts.gitbook.io/ads-b/ for this.
+It's easiest to place the services in the same yml file as ultrafeeder to provide connectivity via docker networking.
 
 ---
 
@@ -30,41 +31,10 @@ This container is designed to work in conjunction with a Mode-S / BEAST provider
 
 On the first run of the container, the database will be created & populated and data will be downloaded from the internet. This process can take quite some time. On my system, around 30 minutes. Once the first run processes are finished, to access FlightAirMap, you can:
 
-- Browse to `http://dockerhost:8080/` to access the FlightAirMap GUI.
-- Browse to `http://dockerhost:8080/install/` to access the FlightAirMap settings area.
+- Browse to `http://dockerhost:8087/` to access the FlightAirMap GUI.
+- Browse to `http://dockerhost:8087/install/` to access the FlightAirMap settings area. (not supported, use env vars)
 
 With regards to settings - where one exists, you should use an environment variable to set your desired setting. The environment variables get written to the `require/settings.php` file on container start, so any configuration items applied via `/install/` area may be overwritten. Long story short, your first port of call for configuration should be environment variables.
-
-## Quick Start with `docker-compose`
-
-**NOTE**: The Docker command provided in this quick start is given as an example and parameters should be adjusted to suit your needs.
-
-**_NOTE:_**: This provided configuration doesn't work. You have to use the external database configuration. This is a known issue, and the config is being left in the README for reference and consideration as we decide what to do about this.
-
-An example `docker-compose.yml` file is as follows:
-
-```yaml
-version: "2.0"
-
-volumes:
-  fam_db:
-  fam_webapp:
-
-services:
-  flightairmap:
-    image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
-    container_name: flightairmap
-    restart: always
-    ports:
-      - 8080:80
-    environment:
-      - TZ=${FEEDER_TZ}
-      - BASESTATIONHOST=readsb
-      - FAM_INSTALLPASSWORD="very_secure_password_12345"
-    volumes:
-      - fam_db:/var/lib/mysql
-      - fam_webapp:/var/www/flightairmap
-```
 
 ## Quick Start with `docker-compose` using external database
 
@@ -73,20 +43,11 @@ services:
 An example `docker-compose.yml` file is as follows:
 
 ```yaml
-version: "2.0"
-
-volumes:
-  fam_db:
-  fam_webapp:
-
-networks:
-  flightairmap:
-
 services:
   flightairmap_db:
     image: lscr.io/linuxserver/mariadb:latest
     container_name: flightairmap_db
-    restart: always
+    restart: unless-stopped
     environment:
       - PUID=0
       - PGID=0
@@ -96,25 +57,23 @@ services:
       - TZ=${FEEDER_TZ}
       - MYSQL_PASSWORD=xi6Paig4yeitae3Pah9aew3j
     volumes:
-      - fam_db:/config
+      - ./fam_db:/config
 
   flightairmap:
     image: ghcr.io/sdr-enthusiasts/docker-flightairmap:latest
     container_name: flightairmap
-    restart: always
+    restart: unless-stopped
     ports:
-      - 8080:80
+      - 8087:80
     environment:
       - TZ=${FEEDER_TZ}
-      - BASESTATIONHOST=readsb
+      - BASESTATIONHOST=ultrafeeder
       - FAM_INSTALLPASSWORD="very_secure_password_12345"
       - MYSQLHOSTNAME=flightairmap_db
       - MYSQLDATABASE=flightairmap
       - MYSQLUSERNAME=flightairmap
       - MYSQLPASSWORD=xi6Paig4yeitae3Pah9aew3j
       - MYSQLROOTPASSWORD=shai5Eisah7phe0aic5foote
-    volumes:
-      - fam_webapp:/var/www/flightairmap
     depends_on:
       - flightairmap_db
 ```
@@ -179,19 +138,6 @@ If you wish to use an external database:
 | `MYSQLUSERNAME` | Sets the mysql/mariadb user name.                   | `flightairmap`. | Required for external databases, else please leave unset |
 | `MYSQLPASSWORD` | Sets the mysql/mariadb password.                    | `unset`         | Required for external databases, else please leave unset |
 
-### Data Volumes
-
-The following table describes data volumes used by the container. The mappings
-are set via the `-v` parameter. Each mapping is specified with the following
-format: `<VOL_NAME>:<CONTAINER_DIR>[:PERMISSIONS]`.
-
-| Container path          | Permissions | Description                                                                     |
-| ----------------------- | ----------- | ------------------------------------------------------------------------------- |
-| `/var/lib/mysql`        | rw          | This is where the application database resides, if using the internal database. |
-| `/var/www/flightairmap` | rw          | This is where the application itself resides.                                   |
-
-It is suggested to make docker volumes for both of these areas, with the `docker volume create` command, and assign the volumes to the paths above.
-
 ### Ports
 
 Here is the list of ports used by the container. They can be mapped to the host
@@ -206,6 +152,6 @@ ainer cannot be changed, but you are free to use any port on the host side.
 
 ## Getting Help
 
-Having troubles with the container or have questions? Please [create a new issue](https://github.com/mikenye/docker-flightairmap/issues).
+Having troubles with the container or have questions? Please [create a new issue](https://github.com/sdr-enthusiasts/docker-flightairmap/issues).
 
 I also have a [Discord channel](https://discord.gg/sTf9uYF), feel free to [join](https://discord.gg/sTf9uYF) and converse.
