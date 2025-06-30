@@ -60,6 +60,7 @@ RUN set -x && \
     socat \
     wget \
     pwgen \
+    mariadb-client \
     && \
     useradd -d "/home/${WEBUSER}" -m -r -U "${WEBUSER}" && \
     echo "========== Setup locales ==========" && \
@@ -93,11 +94,6 @@ RUN set -x && \
     rm -vf /etc/nginx/conf.d/default.conf && \
     rm -vrf /var/www/* && \
     usermod -aG www-data "${WEBUSER}" && \
-    echo "========== Deploy MariaDB ==========" && \
-    apt-get install -y --no-install-recommends \
-    mariadb-server && \
-    mkdir -p /run/mysqld && \
-    chown -vR mysql:mysql /run/mysqld && \
     echo "========== Deploy FlightAirMap ==========" && \
     git clone --recursive https://github.com/Ysurac/FlightAirMap /var/www/flightairmap/htdocs && \
     pushd /var/www/flightairmap/htdocs && \
@@ -106,11 +102,11 @@ RUN set -x && \
     { git log | head -1 | tr -s " " "_" | tee /VERSION || true; } && \
     rm -rf /var/www/flightairmap/htdocs/.git && \
     echo "========== Clean up ==========" && \
-    apt-get remove -y \
+    apt-get autoremove -q -o APT::Autoremove::RecommendsImportant=0 -o APT::Autoremove::SuggestsImportant=0 -y \
     file \
     git \
     && \
-    apt-get autoremove -y && \
+    bash /scripts/clean-build.sh && \
     rm -rf /var/lib/apt/lists/* /tmp/* /src
 
 # Copy config files
